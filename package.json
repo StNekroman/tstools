@@ -1,0 +1,32 @@
+{
+  "name": "ts-tools",
+  "version": "0.0.1",
+  "description": "Set of handy tools for TypeScript development",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "author": {
+    "name": "StNekroman",
+    "email": "StNekroman@gmail.com"
+  },
+  "repository": {
+    "url": "https://github.com/StNekroman/ts-tools"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@jest/globals": "29.7.0",
+    "@types/node": "20.14.14",
+    "jest": "29.7.0",
+    "rimraf": "5.0.10",
+    "ts-jest": "29.2.4",
+    "typescript": "5.5.4"
+  }
+}
