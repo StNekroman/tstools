@@ -2,6 +2,20 @@
 
 Zero-dependency and lightweight library with TypeScript utilities.
 
+## Installation
+
+npm
+
+```shell
+npm i @stnekroman/tstools
+```
+
+yarn
+
+```shell
+yarn add @stnekroman/tstools
+```
+
 ### [Types.ts](src/Types.ts)
 
 Set of pure TypeScript utility types.
@@ -65,3 +79,7 @@ arr.sort(Sorter.byExtractor<Item>(item => item.c).build());
 ```
 
 _Look for more in [Sorter.test.ts](test/Sorter.test.ts)_
+
+---
+
+License MIT
