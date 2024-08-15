@@ -1,4 +1,4 @@
-# ts-tools
+# TStools
 
 Zero-dependency and lightweight library with TypeScript utilities.
 

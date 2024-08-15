@@ -1,6 +1,6 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -10,7 +10,7 @@
     "email": "StNekroman@gmail.com"
   },
   "repository": {
-    "url": "git+https://github.com/StNekroman/ts-tools.git"
+    "url": "git+https://github.com/StNekroman/tstools.git"
   },
   "keywords": ["TypeScript", "TS", "util", "utils", "tools", "ts-tools", "tstools"],
   "exports": {
