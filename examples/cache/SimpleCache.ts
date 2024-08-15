@@ -4,9 +4,10 @@ type SimpleEntry = {
   // data goes here
 };
 
-export class SimpleCache extends Cache<SimpleEntry, [string]> {
+export class SimpleCache extends Cache<SimpleEntry> {
 
-  public override load(id : string): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public override load(_id : string): Promise<string> {
     // loading happens here
     return Promise.reject();
   }

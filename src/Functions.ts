@@ -7,8 +7,10 @@ export namespace Functions {
     export type Consumer<T> = MapFunction<T, void>;
     export type Filter<T> = MapFunction<T, boolean>;
     export type Comparator<T> = (a: T, b: T) => number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export type ArgsConsumer<T extends (...args: any[]) => void> = T;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
     export function noop(..._args: any[]) : void {}
 
     export function identity<T>(arg: T) : Provider<T> {

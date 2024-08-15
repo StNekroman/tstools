@@ -1,6 +1,6 @@
 
 export abstract class Cache<T, ARGS extends unknown[] = [string], KEY = string> {
-  protected readonly _cache : Map<KEY, Promise<T>> = new Map();
+  private readonly _cache : Map<KEY, Promise<T>> = new Map();
 
   public abstract load(...args: ARGS) : Promise<T>;
 
@@ -17,6 +17,16 @@ export abstract class Cache<T, ARGS extends unknown[] = [string], KEY = string> 
     const promise = this.load(...args);
     this._cache.set(cacheKey, promise);
     return promise;
+  }
+
+  public has(...args: ARGS) : boolean {
+    const cacheKey = this.uniqueKey(...args);
+    return this._cache.has(cacheKey);
+  }
+
+  public put(...[data, ...args]: [T | Promise<T>, ...ARGS]) {
+    const cacheKey = this.uniqueKey(...args);
+    this._cache.set(cacheKey, Promise.resolve(data));
   }
 
   public clear() {

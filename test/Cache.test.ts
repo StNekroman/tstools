@@ -7,6 +7,19 @@ import { ObjectKeyCache } from '../examples/cache/ObjectKeyCache';
 
 describe("Cache", () => {
 
+  test("has / put", () => {
+    const cache = new SimpleCache();
+    expect(cache.has("1")).toBeFalsy();
+    cache.put(Promise.resolve("data"), "1");
+    expect(cache.has("1")).toBeTruthy();
+    expect(cache.has("2")).toBeFalsy();
+    cache.put("data", "2");
+    expect(cache.has("2")).toBeTruthy();
+    cache.clear();
+    expect(cache.has("1")).toBeFalsy();
+    expect(cache.has("2")).toBeFalsy();
+  });
+
   test("SimpleCache", async () => {
     const cache = new SimpleCache();
     const spy = jest.spyOn(cache, "load").mockImplementation((id) => Promise.resolve(id));

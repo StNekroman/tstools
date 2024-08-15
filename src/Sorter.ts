@@ -46,21 +46,21 @@ export class Sorter<T> {
     private _nullsLast : boolean = true;
     private _stringCollatorOptions ?: Intl.CollatorOptions;
     private _inverse : boolean = false;
-    private readonly extractor : Functions.MapFunction<T, keyof T & SortableType>;
+    private readonly extractor : Functions.MapFunction<T, T[keyof T] & SortableType>;
 
     public static byField<T>(fieldname : keyof T & Types.KeysWithValsOfType<T, SortableType>) : Sorter<T> {
         return new Sorter<T>(fieldname);
     }
 
-    public static byExtractor<T>(extractor : Functions.MapFunction<T, keyof T & SortableType>) : Sorter<T> {
+    public static byExtractor<T>(extractor : Functions.MapFunction<T, T[keyof T] & SortableType>) : Sorter<T> {
         return new Sorter(extractor);
     }   
 
-    constructor(extractorOrFieldname : Functions.MapFunction<T, keyof T & SortableType> | (keyof T & Types.KeysWithValsOfType<T, SortableType>)) {
+    private constructor(extractorOrFieldname : Functions.MapFunction<T, T[keyof T] & SortableType> | (keyof T & Types.KeysWithValsOfType<T, SortableType>)) {
         if (Objects.isFunction(extractorOrFieldname)) {
             this.extractor = extractorOrFieldname;
         } else {
-            this.extractor = Functions.extractor(extractorOrFieldname) as Functions.MapFunction<T, keyof T & SortableType>;
+            this.extractor = Functions.extractor(extractorOrFieldname) as Functions.MapFunction<T, T[keyof T] & SortableType>;
         }
     }
 

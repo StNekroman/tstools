@@ -16,7 +16,8 @@ export class ObjectArgCache extends Cache<ResponseObject, [RequestObject]> {
     return request.uniqueId; // use unique cache identifier
   }
 
-  public override load(request : RequestObject): Promise<ResponseObject> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public override load(_request : RequestObject): Promise<ResponseObject> {
     // loading happens here
     return Promise.reject();
   }

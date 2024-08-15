@@ -6,7 +6,7 @@ import {Functions} from "./Functions";
  */
 export namespace Throttle {
 
-    export interface IThrottleFunction<T extends any[] = void[]> extends Functions.ArgsConsumer<(...args: T) => void> {
+    export interface IThrottleFunction<T extends unknown[] = void[]> extends Functions.ArgsConsumer<(...args: T) => void> {
         cancel(): void; // cancels and discards any pending calls, but continues to serve new incoming calls
     }
 
@@ -20,7 +20,7 @@ export namespace Throttle {
         timeout: number
     ): IThrottleFunction<T> {
         let lastArgs : T | undefined;
-        let timerId: any;
+        let timerId : NodeJS.Timeout | number | undefined;
 
         const throttleFunction: IThrottleFunction<T> = (...args: T): void => {
             lastArgs = args;
@@ -53,7 +53,7 @@ export namespace Throttle {
      */
     export function deferring<T extends unknown[] = void[]>(callback: Functions.ArgsConsumer<(args: T) => void>, timeout: number): IThrottleFunction<T> {
         let lastArgs: T | undefined;
-        let timerId: any;
+        let timerId: NodeJS.Timeout | number | undefined;
 
         const throttleFunction: IThrottleFunction<T> = (...args: T): void => {
             lastArgs = args;

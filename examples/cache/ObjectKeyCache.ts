@@ -16,7 +16,8 @@ export class ObjectKeyCache extends Cache<ResponseObject, [RequestObject], Reque
     return request; // use request itself as cache identifier
   }
 
-  public override load(request : RequestObject): Promise<ResponseObject> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public override load(_request : RequestObject): Promise<ResponseObject> {
     // loading happens here
     return Promise.reject();
   }

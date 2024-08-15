@@ -10,7 +10,8 @@ export class TwoKeyCache extends Cache<TwoKeyEntry, [string, number]> {
     return id + "." + secondId; // make unique cache identifier
   }
 
-  public override load(id : string, secondId: number): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public override load(_id : string, _secondId: number): Promise<string> {
     // loading happens here
     return Promise.reject();
   }

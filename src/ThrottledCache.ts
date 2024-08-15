@@ -23,9 +23,8 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
   }
 
   public get(...args: ARGS) : Promise<T> {
-    const cacheKey = this.uniqueKey(...args);
-    if (this._cache.has(cacheKey)) {
-      return this._cache.get(cacheKey)!;
+    if (super.has(...args)) {
+      return super.get(...args);
     }
 
     const defferedTask : DefferedTask<T, ARGS> = {
@@ -34,7 +33,7 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
     };
     this.queue.push(defferedTask);
 
-    this._cache.set(cacheKey, defferedTask.deffered.promise);
+    super.put(defferedTask.deffered.promise, ...args);
     this.throttledLoadFn(); // trigger real loading someday
     return defferedTask.deffered.promise;
   }
@@ -47,15 +46,27 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
     const tasks = this.queue.slice(); //extract items
     this.queue.length = 0; // dont touch queue any more (in this processing frame)
 
-    this.loadAll(tasks.map(task => task.args)).then((results : PromiseSettledResult<T>[]) => {
-      for (let i = 0; i < tasks.length; i++) {
-        const result = results[i];
-        if (result.status === "fulfilled") {
-          tasks[i].deffered.resolve(result.value);
-        } else {
-          tasks[i].deffered.reject(result.reason);
+    if (tasks.length > 0) {
+      this.loadAll(tasks.map(task => task.args)).then((results : PromiseSettledResult<T>[]) => {
+        for (let i = 0; i < tasks.length; i++) {
+          const result = results[i];
+          if (result.status === "fulfilled") {
+            tasks[i].deffered.resolve(result.value);
+          } else {
+            tasks[i].deffered.reject(result.reason);
+          }
         }
-      }
-    });
+      });
+    }
+  }
+
+  public override clear() {
+    super.clear();
+
+    const tasks = this.queue.slice();
+    this.queue.length = 0;
+    for (const task of tasks) {
+      task.deffered.reject("clear cache");
+    }
   }
 }

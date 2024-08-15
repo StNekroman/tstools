@@ -1,9 +1,10 @@
 
 export namespace Types {
 
-    export type Primitive = undefined | null | boolean | string | number | Function;
+    export type Primitive = undefined | null | boolean | string | number;
     export type Mutable<T> = { -readonly [P in keyof T ]: T[P] };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export interface Newable<R = {}, ARGS extends any[] = any[]> { new (...args: ARGS) : R; }
 
     // guard to make sure that type can be serialized - doesn't contain functions.
@@ -13,7 +14,7 @@ export namespace Types {
 
     // from https://github.com/iTwin/appui/blob/094a9816957c69b1ee521e4564eaa2262f33df63/ui/appui-react/src/appui-react/redux/redux-ts.ts#L24
     export type DeepReadonly<T> =
-        T extends Primitive ? T :
+        T extends Primitive | Function ? T :
         T extends Map<infer K, infer V> ? DeepReadonlyMap<K, V> :
         T extends Set<infer M> ? DeepReadonlySet<M> : DeepReadonlyObject<T>;
     export type DeepReadonlyArray<T> = ReadonlyArray<DeepReadonly<T>>;
