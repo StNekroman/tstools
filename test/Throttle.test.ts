@@ -5,44 +5,41 @@ import { Throttle } from '../src/Throttle';
 describe("Throttle", () => {
   test("deferring", (done) => {
     const fn = jest.fn();
-    const deferred = Throttle.deferring(fn, 1000);
+    const deferred = Throttle.deferring(fn, 200);
     deferred();
     deferred();
     deferred();
-    setTimeout(deferred, 500);
+    setTimeout(deferred, 100);
 
     setTimeout(() => {
       expect(fn).toBeCalledTimes(0);
-    }, 1001);
-    setTimeout(() => {
-      expect(fn).toBeCalledTimes(0);
-    }, 1200);
+    }, 300);
 
     expect(fn).toBeCalledTimes(0);
     setTimeout(() => {
         expect(fn).toBeCalledTimes(1);
         deferred.cancel();
         done();
-    }, 1600);
+    }, 400);
   });
 
   test("throttle", (done) => {
     const fn = jest.fn();
-    const throttled = Throttle.throttle(fn, 1000);
+    const throttled = Throttle.throttle(fn, 200);
     throttled();
     throttled();
     throttled();
-    setTimeout(throttled, 500);
+    setTimeout(throttled, 100);
 
     expect(fn).toBeCalledTimes(0);
     setTimeout(() => {
       expect(fn).toBeCalledTimes(0);
-    }, 600);
+    }, 150);
   
     setTimeout(() => {
       expect(fn).toBeCalledTimes(1);
       throttled.cancel();
       done();
-    }, 1200);
+    }, 300);
   });
 });

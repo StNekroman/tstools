@@ -19,7 +19,8 @@
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "debugTests": "jest -i"
   },
   "devDependencies": {
     "@jest/globals": "29.7.0",

@@ -2,9 +2,7 @@
 export abstract class Cache<T, ARGS extends unknown[] = [string], KEY = string> {
   protected readonly _cache : Map<KEY, Promise<T>> = new Map();
 
-  public  load(...args: ARGS) : Promise<T> {
-    return Promise.reject();
-  }
+  public abstract load(...args: ARGS) : Promise<T>;
 
   public uniqueKey(...args: ARGS) : KEY {
     return args.toString() as KEY;
