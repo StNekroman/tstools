@@ -6,6 +6,8 @@ const realFunction = (a: string, b: number) : boolean => {
 };
 
 const memoized : Functions.MemoizedFunction<typeof realFunction> = Functions.memo(realFunction);
+// or just
+// const memoized = Functions.memo(realFunction);
 
 memoized("str", 1); // realFunction called once
 memoized("str", 1); // result already cached
