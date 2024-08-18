@@ -8,7 +8,7 @@ export namespace Functions {
     export type Filter<T> = MapFunction<T, boolean>;
     export type Comparator<T> = (a: T, b: T) => number;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    export type ArgsConsumer<T extends (...args: any[]) => void> = T;
+    export type ArgsConsumer<T extends (...args: any[]) => any> = T;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
     export function noop(..._args: any[]) : void {}
@@ -23,8 +23,8 @@ export namespace Functions {
         };
     }
 
-    export function join<T extends unknown[]>(...functions : ArgsConsumer<(...args : T) => void>[]) : ArgsConsumer<(...args : T) => void> {
-        return (...args : T) : void => {
+    export function join<ARGS extends unknown[]>(...functions : ArgsConsumer<(...args : ARGS) => void>[]) : ArgsConsumer<(...args : ARGS) => void> {
+        return (...args : ARGS) : void => {
             for (const func of functions) {
                 func(...args);
             }
@@ -35,5 +35,36 @@ export namespace Functions {
         return (obj: T) : T[F] => {
             return obj[field];
         };
+    }
+
+    export type MemoizedFunction<F extends ArgsConsumer<(...args : any[]) => any>> = {
+        (...args: Parameters<F>) : ReturnType<F>;
+
+        clear() : void;
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    export function memo<F extends ArgsConsumer<(...args : any[]) => any>>(
+        func : F,
+        cacheId : Functions.MapFunction<Parameters<F>, string> = ((args: Parameters<F>) => args.toString())
+    ) : MemoizedFunction<F> {
+        const cache = new Map<string, ReturnType<F>>();
+
+        const memoized : MemoizedFunction<F> = ((...args: Parameters<F>) : ReturnType<F> => {
+            const cached = cacheId(args);
+            if (cache.has(cached)) {
+                return cache.get(cached)!;
+            } else {
+                const result = func(...args);
+                cache.set(cached, result);
+                return result;
+            }
+        }) as MemoizedFunction<F>;
+
+        memoized.clear = () => {
+            cache.clear();
+        };
+
+        return memoized;
     }
 }
