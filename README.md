@@ -24,10 +24,6 @@ Set of pure TypeScript utility types.
 
 Helper methods for operations with arrays.
 
-### [Functions.ts](src/Functions.ts)
-
-Types for functions for better readability with some utilities.
-
 ### [Objects.ts](src/Objects.ts)
 
 Helper methods for operations with objects and different values.
@@ -35,6 +31,13 @@ Helper methods for operations with objects and different values.
 ### [Throttle.ts](src/Throttle.ts)
 
 Implementations of throttle patten (aka debounce)
+
+### [Functions.ts](src/Functions.ts)
+
+Types for functions for better readability with some utilities.  
+_Highlights:_
+
+- [Functions.memo](examples/functions/memo.ts) caching/"memoization" of passed function
 
 ### [Cache.ts](src/Cache.ts)
 

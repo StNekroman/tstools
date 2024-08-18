@@ -12,9 +12,6 @@
   "repository": {
     "url": "git+https://github.com/StNekroman/tstools.git"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  },
   "keywords": ["TypeScript", "TS", "util", "utils", "tools", "ts-tools", "tstools"],
   "exports": {
     ".": "./dist/index.js"
