@@ -1,8 +1,9 @@
 import { Functions } from '../../src/Functions';
 
-const realFunction = (a: string, b: number) : boolean => {
+
+const realFunction = (a: string, b: number) : string => {
   // heavy logic here
-  return true;
+  return a + b;
 };
 
 const memoized : Functions.MemoizedFunction<typeof realFunction> = Functions.memo(realFunction);

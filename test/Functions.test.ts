@@ -60,4 +60,41 @@ describe("Functions", () => {
     memoized("str", 1);
     expect(fn).toBeCalledTimes(2); // +1 call
   });
+
+  test("pipe numbers", () => {
+    const piped = Functions.pipe((a: number) => a * 2)
+      .pipe((a: number) => a * 3)
+      .pipe((a: number) => a - 4);
+
+    expect(piped(1)).toBe(2);
+    expect(piped(2)).toBe(8);
+  });
+
+type Pipe<T extends any[]> = T extends [(arg: infer A) => infer B, ...infer R]
+  ? Pipe<R>
+  : T;
+
+  type PipeFn<T extends any[]> = T extends [infer F extends (...args: any[]) => any, ...infer Rest]
+  ? (...args: Parameters<F>) => PipeFn<Rest extends any[] ? Rest : []>
+  : (...args: any[]) => any;
+
+  test("pipe mix", () => {
+    const piped = Functions.pipe((a: number) => a + 1)
+      .pipe((a: number) => a % 2 === 0 ? true : false)
+      .pipe((flag: boolean) => flag ? "textTrue" : "textFalse");
+
+    expect(piped(1)).toBe("textTrue");
+    expect(piped(2)).toBe("textFalse");
+  });
+
+  test("pipe array chain", () => {
+    const piped = Functions.pipe(
+      (a: number) => a + 1,
+      (a: number) => a % 2 === 0 ? true : false
+    )
+    .pipe((flag: boolean) => flag ? "textTrue" : "textFalse");
+
+    expect(piped(1)).toBe("textTrue");
+    expect(piped(2)).toBe("textFalse");
+  });
 });

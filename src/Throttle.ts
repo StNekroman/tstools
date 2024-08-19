@@ -6,7 +6,7 @@ import {Functions} from "./Functions";
  */
 export namespace Throttle {
 
-    export interface IThrottleFunction<T extends unknown[] = void[]> extends Functions.ArgsConsumer<(...args: T) => void> {
+    export interface ThrottleFunction<T extends unknown[] = void[]> extends Functions.ArgsConsumer<(...args: T) => void> {
         cancel(): void; // cancels and discards any pending calls, but continues to serve new incoming calls
     }
 
@@ -18,11 +18,11 @@ export namespace Throttle {
      */
     export function throttle<T extends unknown[] = void[]>(callback: Functions.ArgsConsumer<(args: T) => void>,
         timeout: number
-    ): IThrottleFunction<T> {
+    ): ThrottleFunction<T> {
         let lastArgs : T | undefined;
         let timerId : NodeJS.Timeout | number | undefined;
 
-        const throttleFunction: IThrottleFunction<T> = (...args: T): void => {
+        const throttleFunction: ThrottleFunction<T> = (...args: T): void => {
             lastArgs = args;
 
             if (timerId === undefined) {
@@ -51,11 +51,11 @@ export namespace Throttle {
      * @param callback to call after timeout
      * @param timeout in milliseconds
      */
-    export function deferring<T extends unknown[] = void[]>(callback: Functions.ArgsConsumer<(args: T) => void>, timeout: number): IThrottleFunction<T> {
+    export function deferring<T extends unknown[] = void[]>(callback: Functions.ArgsConsumer<(args: T) => void>, timeout: number): ThrottleFunction<T> {
         let lastArgs: T | undefined;
         let timerId: NodeJS.Timeout | number | undefined;
 
-        const throttleFunction: IThrottleFunction<T> = (...args: T): void => {
+        const throttleFunction: ThrottleFunction<T> = (...args: T): void => {
             lastArgs = args;
 
             if (timerId !== undefined) {

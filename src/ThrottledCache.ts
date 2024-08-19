@@ -12,7 +12,7 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
 
   private readonly queue : DefferedTask<T, ARGS>[] = [];
 
-  private readonly throttledLoadFn : Throttle.IThrottleFunction;
+  private readonly throttledLoadFn : Throttle.ThrottleFunction;
 
   constructor(timeout : number = 200) {
     super();
