@@ -6,7 +6,7 @@ import {Functions} from "./Functions";
  */
 export namespace Throttle {
 
-    export interface ThrottleFunction<T extends unknown[] = void[]> extends Functions.ArgsConsumer<(...args: T) => void> {
+    export interface ThrottleFunction<ARGS extends unknown[] = void[]> extends Functions.ArgsFunction<ARGS, void> {
         cancel(): void; // cancels and discards any pending calls, but continues to serve new incoming calls
     }
 
@@ -16,18 +16,18 @@ export namespace Throttle {
      * @param callback to be called, throttled by timeout
      * @param timeout in milliseconds
      */
-    export function throttle<T extends unknown[] = void[]>(callback: Functions.ArgsConsumer<(args: T) => void>,
+    export function throttle<ARGS extends unknown[] = void[]>(callback: Functions.ArgsFunction<ARGS, void>,
         timeout: number
-    ): ThrottleFunction<T> {
-        let lastArgs : T | undefined;
+    ): ThrottleFunction<ARGS> {
+        let lastArgs : ARGS | undefined;
         let timerId : NodeJS.Timeout | number | undefined;
 
-        const throttleFunction: ThrottleFunction<T> = (...args: T): void => {
+        const throttleFunction: ThrottleFunction<ARGS> = (...args: ARGS): void => {
             lastArgs = args;
 
             if (timerId === undefined) {
                 timerId = setTimeout((): void => {
-                    callback(lastArgs!);
+                    callback(...lastArgs!);
                     lastArgs = undefined;
                     timerId = undefined;
                 }, timeout);
@@ -51,18 +51,18 @@ export namespace Throttle {
      * @param callback to call after timeout
      * @param timeout in milliseconds
      */
-    export function deferring<T extends unknown[] = void[]>(callback: Functions.ArgsConsumer<(args: T) => void>, timeout: number): ThrottleFunction<T> {
-        let lastArgs: T | undefined;
+    export function deferring<ARGS extends unknown[] = void[]>(callback: Functions.ArgsFunction<ARGS, void>, timeout: number): ThrottleFunction<ARGS> {
+        let lastArgs: ARGS | undefined;
         let timerId: NodeJS.Timeout | number | undefined;
 
-        const throttleFunction: ThrottleFunction<T> = (...args: T): void => {
+        const throttleFunction: ThrottleFunction<ARGS> = (...args: ARGS): void => {
             lastArgs = args;
 
             if (timerId !== undefined) {
                 clearTimeout(timerId);
             }
             timerId = setTimeout((): void => {
-                callback(lastArgs!);
+                callback(...lastArgs!);
                 lastArgs = undefined;
                 timerId = undefined;
             }, timeout);

@@ -8,7 +8,7 @@ export namespace Functions {
     export type Consumer<T> = MapFunction<T, void>;
     export type Filter<T> = MapFunction<T, boolean>;
     export type Comparator<T> = (a: T, b: T) => number;
-    export type ArgsConsumer<T extends (...args: any[]) => any> = T;
+    export type ArgsFunction<ARGS extends unknown[], R> = (...args: ARGS) => R;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export function noop(..._args: any[]) : void {}
@@ -17,13 +17,7 @@ export namespace Functions {
         return () : T => arg;
     }
 
-    export function compose<V, T, R>(before: MapFunction<V, T>, after: MapFunction<T, R>): MapFunction<V, R> {
-        return (input: V): R => {
-            return after(before(input));
-        };
-    }
-
-    export function join<ARGS extends unknown[]>(...functions : ArgsConsumer<(...args : ARGS) => void>[]) : ArgsConsumer<(...args : ARGS) => void> {
+    export function join<ARGS extends unknown[]>(...functions : ArgsFunction<ARGS, void>[]) : ArgsFunction<ARGS, void> {
         return (...args : ARGS) : void => {
             for (const func of functions) {
                 func(...args);
@@ -37,49 +31,49 @@ export namespace Functions {
         };
     }
 
-    export type PipedFunction<F extends ArgsConsumer<(...args : any[]) => any>> = F & {
+    export type PipedFunction<F extends ArgsFunction<any[], any>> = F & {
 
-        pipe<NEXT extends MapFunction<ReturnType<F>, any>>(next : NEXT) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT>>>;
+        pipe<NEXT extends MapFunction<ReturnType<F>, any>>(next : NEXT) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT>>>;
         pipe<
             NEXT1 extends MapFunction<ReturnType<F>, any>,
             NEXT2 extends MapFunction<ReturnType<NEXT1>, any>
-        >(next1 : NEXT1, next2 : NEXT2) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT2>>>;
+        >(next1 : NEXT1, next2 : NEXT2) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT2>>>;
         pipe<
             NEXT1 extends MapFunction<ReturnType<F>, any>,
             NEXT2 extends MapFunction<ReturnType<NEXT1>, any>,
             NEXT3 extends MapFunction<ReturnType<NEXT2>, any>
-        >(next1 : NEXT1, next2 : NEXT2, next3 : NEXT3) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT3>>>;
+        >(next1 : NEXT1, next2 : NEXT2, next3 : NEXT3) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT3>>>;
         pipe<
             NEXT1 extends MapFunction<ReturnType<F>, any>,
             NEXT2 extends MapFunction<ReturnType<NEXT1>, any>,
             NEXT3 extends MapFunction<ReturnType<NEXT2>, any>,
             NEXT4 extends MapFunction<ReturnType<NEXT3>, any>
-        >(next1 : NEXT1, next2 : NEXT2, next3 : NEXT3, next4 : NEXT4) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT4>>>;
+        >(next1 : NEXT1, next2 : NEXT2, next3 : NEXT3, next4 : NEXT4) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT4>>>;
         pipe<
             NEXTS extends MapFunction<any, any>[]
-        >(...nexts : NEXTS) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => any>>;
+        >(...nexts : NEXTS) : PipedFunction<ArgsFunction<Parameters<F>, any>>;
     };
 
 
-    export function pipe<F extends ArgsConsumer<(...args : any[]) => any>>(fn : F) : PipedFunction<F>;
+    export function pipe<F extends ArgsFunction<any[], any>>(fn : F) : PipedFunction<F>;
     export function pipe<
-        F extends ArgsConsumer<(...args : any[]) => any>,
+        F extends ArgsFunction<any[], any>,
         NEXT1 extends MapFunction<ReturnType<F>, any>
-    >(fn : F, next1: NEXT1) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT1>>>;
+    >(fn : F, next1: NEXT1) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT1>>>;
     export function pipe<
-        F extends ArgsConsumer<(...args : any[]) => any>,
+        F extends ArgsFunction<any[], any>,
         NEXT1 extends MapFunction<ReturnType<F>, any>,
         NEXT2 extends MapFunction<ReturnType<NEXT1>, any>
-    >(fn : F, next1: NEXT1, next2: NEXT2) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT2>>>;
+    >(fn : F, next1: NEXT1, next2: NEXT2) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT2>>>;
     export function pipe<
-        F extends ArgsConsumer<(...args : any[]) => any>,
+        F extends ArgsFunction<any[], any>,
         NEXT1 extends MapFunction<ReturnType<F>, any>,
         NEXT2 extends MapFunction<ReturnType<NEXT1>, any>,
         NEXT3 extends MapFunction<ReturnType<NEXT2>, any>
-    >(fn : F, next1: NEXT1, next2: NEXT2, next3: NEXT3) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => ReturnType<NEXT3>>>;
-    export function pipe<F extends ArgsConsumer<(...args : any[]) => any>>(...fns : F[]) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => any>>;
+    >(fn : F, next1: NEXT1, next2: NEXT2, next3: NEXT3) : PipedFunction<ArgsFunction<Parameters<F>, ReturnType<NEXT3>>>;
+    export function pipe<F extends ArgsFunction<any[], any>>(...fns : F[]) : PipedFunction<ArgsFunction<Parameters<F>, any>>;
 
-    export function pipe<F extends ArgsConsumer<(...args : any[]) => any>>(firstFn: F, ...restFns : F[]) : PipedFunction<ArgsConsumer<(...args : Parameters<F>) => any>> {
+    export function pipe<F extends ArgsFunction<any[], any>>(firstFn: F, ...restFns : F[]) : PipedFunction<ArgsFunction<Parameters<F>, any>> {
         const piped = ((...args: Parameters<F>) : ReturnType<F> => {
             let result = firstFn(...args);
             for (const fn of restFns) {
@@ -95,7 +89,7 @@ export namespace Functions {
         return piped;
     }
 
-    export type MemoizedFunction<F extends ArgsConsumer<(...args : any[]) => any>> = {
+    export type MemoizedFunction<F extends ArgsFunction<any[], any>> = {
         (...args: Parameters<F>) : ReturnType<F>;
 
         clear() : void;
@@ -106,7 +100,7 @@ export namespace Functions {
      * @param cacheId function-generator of unique string id for each arguments combination, @defaut is just `.toString()`
      * @returns "memoized"/caching function, which will trigger given function only on argument change
      */
-    export function memo<F extends ArgsConsumer<(...args : any[]) => any>>(
+    export function memo<F extends ArgsFunction<any[], any>>(
         func : F,
         cacheId : Functions.MapFunction<Parameters<F>, string> = ((args: Parameters<F>) => args.toString())
     ) : MemoizedFunction<F> {

@@ -24,12 +24,12 @@ describe("Throttle", () => {
   });
 
   test("throttle", (done) => {
-    const fn = jest.fn();
+    const fn = jest.fn((_a: number, _b: string) => {});
     const throttled = Throttle.throttle(fn, 200);
-    throttled();
-    throttled();
-    throttled();
-    setTimeout(throttled, 100);
+    throttled(1, "str");
+    throttled(1, "str");
+    throttled(2, "str2");
+    setTimeout(() => throttled(3, "str3"), 100);
 
     expect(fn).toBeCalledTimes(0);
     setTimeout(() => {
@@ -38,6 +38,7 @@ describe("Throttle", () => {
   
     setTimeout(() => {
       expect(fn).toBeCalledTimes(1);
+      expect(fn).toBeCalledWith(3, "str3");
       throttled.cancel();
       done();
     }, 300);

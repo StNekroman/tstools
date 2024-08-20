@@ -8,17 +8,6 @@ describe("Functions", () => {
     expect(Functions.identity(undefined)()).toBe(undefined);
   });
 
-  test("compose", () => {
-    const fn : Functions.MapFunction<string, string> = Functions.compose((str) => {
-      return str + "f1";
-    }, (str) => {
-      return str + "f2";
-    })
-
-    expect(fn("text")).toBe("textf1f2");
-  });
-
-
   test("join", () => {
     const f1 = jest.fn();
     const f2 = jest.fn();
