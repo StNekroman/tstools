@@ -59,14 +59,6 @@ describe("Functions", () => {
     expect(piped(2)).toBe(8);
   });
 
-type Pipe<T extends any[]> = T extends [(arg: infer A) => infer B, ...infer R]
-  ? Pipe<R>
-  : T;
-
-  type PipeFn<T extends any[]> = T extends [infer F extends (...args: any[]) => any, ...infer Rest]
-  ? (...args: Parameters<F>) => PipeFn<Rest extends any[] ? Rest : []>
-  : (...args: any[]) => any;
-
   test("pipe mix", () => {
     const piped = Functions.pipe((a: number) => a + 1)
       .pipe((a: number) => a % 2 === 0 ? true : false)

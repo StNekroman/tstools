@@ -91,7 +91,9 @@ describe("Objects", () => {
     expect(Objects.isPrimitive(new String("true"))).toBe(false);
     expect(Objects.isPrimitive(Number(1))).toBe(true);
     expect(Objects.isPrimitive(true)).toBe(true);
-    
+    expect(Objects.isPrimitive(BigInt("1"))).toBe(true);
+    expect(Objects.isPrimitive(Symbol("s"))).toBe(true);
+
     expect(Objects.isPrimitive({})).toBe(false);
     expect(Objects.isPrimitive([])).toBe(false);
     expect(Objects.isPrimitive(() => {})).toBe(false);

@@ -38,6 +38,7 @@ Types for functions for better readability with some utilities.
 _Highlights:_
 
 - [Functions.memo](examples/functions/memo.ts) caching/"memoization" of passed function
+- [Functions.pipe](examples/functions/pipe.ts) piping/chaining of functions
 
 ### [Cache.ts](src/Cache.ts)
 

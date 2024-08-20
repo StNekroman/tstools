@@ -33,7 +33,7 @@ export namespace Objects {
         return typeof arg === "boolean";
     }
 
-    export function isPrimitive(arg : unknown) : arg is string | number | boolean | undefined | null {
+    export function isPrimitive(arg : unknown) : arg is Types.Primitive {
         if (!Objects.isNotNullOrUndefined(arg)) {
             return true;
         }

@@ -1,7 +1,7 @@
 
 export namespace Types {
 
-    export type Primitive = undefined | null | boolean | string | number;
+    export type Primitive = undefined | null | boolean | string | number | bigint | symbol;
     export type Mutable<T> = { -readonly [P in keyof T ]: T[P] };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
