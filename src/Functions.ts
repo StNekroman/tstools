@@ -25,8 +25,8 @@ export namespace Functions {
         };
     }
 
-    export function extractor<T, F extends keyof T>(field : F) : MapFunction<T, T[F]> {
-        return (obj: T) : T[F] => {
+    export function extractor<T, K extends keyof T = keyof T>(field : K) : MapFunction<T, T[K]> {
+        return (obj: T) : T[typeof field] => {
             return obj[field];
         };
     }

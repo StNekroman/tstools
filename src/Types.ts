@@ -18,6 +18,7 @@ export namespace Types {
     // from https://github.com/iTwin/appui/blob/094a9816957c69b1ee521e4564eaa2262f33df63/ui/appui-react/src/appui-react/redux/redux-ts.ts#L24
     export type DeepReadonly<T> =
         T extends Primitive | Function ? T :
+        T extends [] ? DeepReadonlyArray<T> :
         T extends Map<infer K, infer V> ? DeepReadonlyMap<K, V> :
         T extends Set<infer M> ? DeepReadonlySet<M> : DeepReadonlyObject<T>;
     export type DeepReadonlyArray<T> = ReadonlyArray<DeepReadonly<T>>;

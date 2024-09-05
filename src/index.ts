@@ -7,3 +7,5 @@ export { Sorter } from "./Sorter";
 export { Throttle } from "./Throttle";
 export { ThrottledCache } from './ThrottledCache';
 export { Types } from "./Types";
+export {Implements} from "./decorators/Implements";
+export { GroupBy } from "./GroupBy";

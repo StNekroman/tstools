@@ -1,0 +1,1 @@
+export function Implements<T>(_target: T, _propertyKey: keyof T) {};
