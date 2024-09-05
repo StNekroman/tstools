@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { Objects, GroupBy } from '../src';
+import { GroupBy, Objects } from '../src';
 
 describe("GroupBy", () => {
 
@@ -14,7 +14,7 @@ describe("GroupBy", () => {
   ];
 
    test("basic group by extractor", () => {
-    const acc = new GroupBy<typeof data[0]>().byExtractor(i => i.a).valueExtractor(i => i).build();
+    const acc = GroupBy.toObject<typeof data[0]>().byExtractor(i => i.a).valueExtractor(i => i).build();
 
     acc.consume(data[0]);
     expect(Objects.equals(acc.result, {
@@ -60,7 +60,7 @@ describe("GroupBy", () => {
   });
 
   test("basic group by field", () => {
-    const acc = new GroupBy<typeof data[0]>().byField("a").build();
+    const acc = GroupBy.toObject<typeof data[0]>().byField("a").build();
 
     acc.consume(data[0]);
     expect(Objects.equals(acc.result, {
@@ -106,7 +106,7 @@ describe("GroupBy", () => {
   });
 
   test("group by field with value transform", () => {
-    const acc = new GroupBy<typeof data[0]>().byField("a").valueExtractor(i => i.a).build();
+    const acc = GroupBy.toObject<typeof data[0]>().byField("a").valueExtractor(i => i.a).build();
 
     for (const item of data) {
       acc.consume(item);
@@ -120,7 +120,7 @@ describe("GroupBy", () => {
   });
 
   test("group by field with value transform 2", () => {
-    const acc = new GroupBy<typeof data[0]>().byField("a").valueExtractor(i => ({b: i.b, c: i.c})).build();
+    const acc = GroupBy.toObject<typeof data[0]>().byField("a").valueExtractor(i => ({b: i.b, c: i.c})).build();
 
     for (const item of data) {
       acc.consume(item);
@@ -134,11 +134,11 @@ describe("GroupBy", () => {
   });
 
   test("group by nested sub-grouping", () => {
-    const acc = new GroupBy<typeof data[0]>()
+    const acc = GroupBy.toObject<typeof data[0]>()
                     .byField("a")
                     .valueExtractor(i => ({b: i.b, c: i.c}))
                     .build(
-                      () => new GroupBy<{b: number, c: number}>().byField("b").valueExtractor(i => ({c: i.c})).build()
+                      () => GroupBy.toObject<{b: number, c: number}>().byField("b").valueExtractor(i => ({c: i.c})).build()
                     );
 
     for (const item of data) {
@@ -161,11 +161,11 @@ describe("GroupBy", () => {
   });
 
   test("triple nested sub-grouping", () => {
-    const acc = new GroupBy<typeof data[0]>()
+    const acc = GroupBy.toObject<typeof data[0]>()
                     .byField("a")
                     .build(
-                      () => new GroupBy<typeof data[0]>().byField("b").build(
-                        () => new GroupBy<typeof data[0]>().byField("c").valueExtractor(i => ({c: i.c})).build()
+                      () => GroupBy.toObject<typeof data[0]>().byField("b").build(
+                        () => GroupBy.toObject<typeof data[0]>().byField("c").valueExtractor(i => ({c: i.c})).build()
                       )
                     );
 
