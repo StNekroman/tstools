@@ -1,9 +1,9 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
-  "main": "./dist/index.js",
+  "main": "./dist/src/index.js",
   "types": "./src/index.ts",
   "author": {
     "name": "StNekroman",
@@ -14,7 +14,7 @@
   },
   "keywords": ["TypeScript", "TS", "util", "utils", "tools", "ts-tools", "tstools"],
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/src/index.js"
   },
   "scripts": {
     "clean": "rimraf dist",
