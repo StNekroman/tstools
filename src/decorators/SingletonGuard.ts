@@ -15,7 +15,7 @@ export function SingletonGuard<C>() {
       return new ctr(...args);
     }
 
-    Object.setPrototypeOf(newConstructor, ctr.prototype);
+    newConstructor.prototype = ctr.prototype;
     return newConstructor as unknown as Types.Newable<C>;
   }; 
 }
