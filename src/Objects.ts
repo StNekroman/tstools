@@ -51,6 +51,24 @@ export namespace Objects {
         }
     }
 
+    export function isConstructorOf<T>(test: unknown, targetClass: Types.Newable<T>) : test is Types.Newable<T> {
+        if (test === targetClass) {
+            return true;
+        }
+
+        if (Objects.isFunction(test)) {
+            let prototype = test.prototype;
+            while (prototype) {
+                if (prototype instanceof targetClass) {
+                    return true;
+                }
+                prototype = prototype.prototype;
+            }
+        }
+
+        return false;
+    }
+
     // port of this https://medium.com/@stheodorejohn/javascript-object-deep-equality-comparison-in-javascript-7aa227e889d4
     export function equals<T>(obj1 ?: T, obj2 ?: T) : boolean {
         if (obj1 === obj2) {

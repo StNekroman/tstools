@@ -202,4 +202,23 @@ describe("Objects", () => {
     expect(Objects.isBlankString("  \t  \r\n")).toBe(true);
     expect(Objects.isBlankString("g")).toBe(false);
    });
+
+   test("isConstructorOf", () => {
+
+    class Base {}
+
+    class TestA {}
+
+    class TestB extends Base {}
+
+    class TestC extends TestB {}
+
+    expect(Objects.isConstructorOf({}, Base)).toBe(false);
+    expect(Objects.isConstructorOf("", Base)).toBe(false);
+    expect(Objects.isConstructorOf(123, Base)).toBe(false);
+    expect(Objects.isConstructorOf(() => {}, Base)).toBe(false);
+    expect(Objects.isConstructorOf(TestA, Base)).toBe(false);
+    expect(Objects.isConstructorOf(TestB, Base)).toBe(true);
+    expect(Objects.isConstructorOf(TestC, Base)).toBe(true);
+   });
 });

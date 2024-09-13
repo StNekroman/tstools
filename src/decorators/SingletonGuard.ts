@@ -8,7 +8,7 @@ export function SingletonGuard<C>() {
   return (ctr: Types.Newable<C>) : Types.Newable<C> => {
     function newConstructor(...args: unknown[]) {
       if (++instanceRefCount > 1) {
-        throw new SingletonGuardError(`SingletonGuard: class ${ctr} cannot have more then one instance`);
+        throw new SingletonGuardError(`SingletonGuard: class ${ctr.name} cannot have more then one instance`);
       }
     
       // Call the original constructor with validated arguments
