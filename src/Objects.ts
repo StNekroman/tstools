@@ -51,6 +51,11 @@ export namespace Objects {
         }
     }
 
+    /**
+     * @param test object
+     * @param targetClass target class (constructor) to test against 
+     * @returns true, of given test object is constructor of class, which extends target class (actually constructor)
+     */
     export function isConstructorOf<T>(test: unknown, targetClass: Types.Newable<T>) : test is Types.Newable<T> {
         if (test === targetClass) {
             return true;

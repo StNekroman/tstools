@@ -1,3 +1,4 @@
+import { Functions } from "./Functions";
 
 export namespace Arrays {
 
@@ -26,5 +27,28 @@ export namespace Arrays {
             arr[randomIndex] = temp;
         }
         return arr;
+    }
+
+    /**
+     * Filters array subsequent items until first not-match.  
+     * 
+     * @param arr input array
+     * @param filter filter function
+     * @param includeLast if true (default is false) - last non matching item will be included.
+     * @returns filtered array
+     */
+    export function filterUntil<T>(arr : T[], filter : Functions.Filter<T>, includeLast : boolean = false) : T[] {
+        const result = [];
+        for (const item of arr) {
+            if (filter(item)) {
+                result.push(item);
+            } else {
+                if (includeLast) {
+                    result.push(item);
+                }
+                break;
+            }
+        }
+        return result;
     }
 }

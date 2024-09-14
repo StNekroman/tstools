@@ -25,4 +25,14 @@ describe("Arrays", () => {
     expect(shuffled).toBeDefined();
     expect(shuffled).not.toStrictEqual([1, 2, 3]);
   });
+
+  test("filterUntil", () => {
+    const filtered = Arrays.filterUntil([1, 2, 3, 10, 11, 12, 7, 8, 9], (i) => i < 10);
+    expect(filtered).toStrictEqual([1, 2, 3]);
+  });
+
+  test("filterUntil, include last", () => {
+    const filtered = Arrays.filterUntil([1, 2, 3, 10, 11, 12, 7, 8, 9], (i) => i < 10, true);
+    expect(filtered).toStrictEqual([1, 2, 3, 10]);
+  });
 });
