@@ -1,5 +1,5 @@
 
-import {Functions} from "./Functions";
+import {Functions} from "../Functions";
 
 /**
  * Ported patterns from http://unscriptable.com/2009/03/20/debouncing-javascript-methods/

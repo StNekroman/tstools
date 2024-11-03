@@ -5,7 +5,7 @@ import { SimpleCache } from '../examples/cache/SimpleCache';
 import { TwoKeyCache } from '../examples/cache/TwoKeyCache';
 import { ObjectKeyCache } from '../examples/cache/ObjectKeyCache';
 
-describe("Cache", () => {
+describe("LoadingCache", () => {
 
   test("has / put", () => {
     const cache = new SimpleCache();
@@ -91,6 +91,28 @@ describe("Cache", () => {
 
     key1.uniqueId = "2";
     await cache.get(key1);
+
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  test("WeakMapCache", async () => {
+    const cache = new ObjectArgCache();
+    const spy = jest.spyOn(cache, "load").mockImplementation((id) => Promise.resolve({
+      data: undefined
+    }));
+
+    const key1 : RequestObject = {
+      uniqueId: "1"
+    };
+    const key2 : RequestObject = {
+      uniqueId: "2"
+    };
+
+    await Promise.all([
+      cache.get(key1),
+      cache.get(key1),
+      cache.get(key2)
+    ]);
 
     expect(spy).toHaveBeenCalledTimes(2);
   });

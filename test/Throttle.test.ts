@@ -1,6 +1,6 @@
 
-import { describe, expect, jest, test } from '@jest/globals';
-import { Throttle } from '../src/Throttle';
+import { describe, expect, jest, test } from "@jest/globals";
+import { Throttle } from "../src/throttle/Throttle";
 
 describe("Throttle", () => {
   test("deferring", (done) => {

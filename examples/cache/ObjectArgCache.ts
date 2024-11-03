@@ -1,4 +1,4 @@
-import { Cache } from "../../src/Cache";
+import { LoadingCache } from "../../src/caching/LoadingCache";
 
 export type RequestObject = {
   // data goes here
@@ -10,7 +10,7 @@ type ResponseObject = {
   data: unknown;
 };
 
-export class ObjectArgCache extends Cache<ResponseObject, [RequestObject]> {
+export class ObjectArgCache extends LoadingCache<ResponseObject, [RequestObject], string> {
 
   public override uniqueKey(request : RequestObject) : string {
     return request.uniqueId; // use unique cache identifier

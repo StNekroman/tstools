@@ -1,21 +1,21 @@
 
-import { Cache } from "./Cache";
-import { Deffered } from './Deffered';
-import { Throttle } from './Throttle';
+import { LoadingCache } from "./LoadingCache";
+import { Deffered } from '../Deffered';
+import { Throttle } from '../throttle/Throttle';
 
 type DefferedTask<T, ARGS extends unknown[]> = {
   args: ARGS;
   deffered : Deffered<T>;
 };
 
-export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY = string> extends Cache<T, ARGS, KEY> {
+export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY = string> extends LoadingCache<T, ARGS, KEY> {
 
   private readonly queue : DefferedTask<T, ARGS>[] = [];
 
   private readonly throttledLoadFn : Throttle.ThrottleFunction;
 
-  constructor(timeout : number = 200) {
-    super();
+  constructor(timeout : number = 200, mapImpl : Map<KEY, Promise<T>> = new Map()) {
+    super(mapImpl);
 
     this.throttledLoadFn = Throttle.throttle(() => {
       this.processQueue();

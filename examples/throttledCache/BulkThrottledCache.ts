@@ -1,4 +1,4 @@
-import { ThrottledCache } from "../../src/ThrottledCache";
+import { ThrottledCache } from "../../src/caching/ThrottledCache";
 
 export class BulkThrottledCache extends ThrottledCache<string> {
 
