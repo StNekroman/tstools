@@ -1,6 +1,5 @@
-
-import { describe, expect, test } from '@jest/globals';
-import { Arrays } from '../src/Arrays';
+import { describe, expect, test } from "@jest/globals";
+import { Arrays } from "../src/Arrays";
 
 describe("Arrays", () => {
   test("deleteItem", () => {
@@ -27,12 +26,35 @@ describe("Arrays", () => {
   });
 
   test("filterUntil", () => {
-    const filtered = Arrays.filterUntil([1, 2, 3, 10, 11, 12, 7, 8, 9], (i) => i < 10);
+    const filtered = Arrays.filterUntil(
+      [1, 2, 3, 10, 11, 12, 7, 8, 9],
+      (i) => i < 10
+    );
     expect(filtered).toStrictEqual([1, 2, 3]);
   });
 
   test("filterUntil, include last", () => {
-    const filtered = Arrays.filterUntil([1, 2, 3, 10, 11, 12, 7, 8, 9], (i) => i < 10, true);
+    const filtered = Arrays.filterUntil(
+      [1, 2, 3, 10, 11, 12, 7, 8, 9],
+      (i) => i < 10,
+      true
+    );
     expect(filtered).toStrictEqual([1, 2, 3, 10]);
+  });
+
+  test("haveIntersection", () => {
+    expect(Arrays.haveIntersection([], [])).toBe(false);
+    expect(Arrays.haveIntersection([1], [])).toBe(false);
+    expect(Arrays.haveIntersection([], [1])).toBe(false);
+    expect(Arrays.haveIntersection([1], [2])).toBe(false);
+    expect(Arrays.haveIntersection([1, 2], [3, 4])).toBe(false);
+
+    expect(Arrays.haveIntersection([1], [1])).toBe(true);
+    expect(Arrays.haveIntersection([1], [1, 2])).toBe(true);
+    expect(Arrays.haveIntersection([2], [1, 2])).toBe(true);
+    expect(Arrays.haveIntersection([1], [1, 2])).toBe(true);
+    expect(Arrays.haveIntersection([1, 2], [1, 2])).toBe(true);
+    expect(Arrays.haveIntersection([1, 2], [2, 3])).toBe(true);
+    expect(Arrays.haveIntersection([1, 2, 3], [2])).toBe(true);
   });
 });
