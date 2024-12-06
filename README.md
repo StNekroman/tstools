@@ -65,7 +65,7 @@ _Examples of usage:_
 - [Implements](src/decorators/Implements.ts) — like built-in `overrides` keyword, but for ensuring, that method/prop implements one of class'es interface
 - [SingletonGuard](src/decorators/SingletonGuard.ts) — ensures that class can have only not more than 1 instance. (`new` invoked only 0 or 1 times)
 
-### [Optional.ts](src/Optional.ts)
+### [Optional.ts](src/optional/Optional.ts)
 
 Java-port of old good `Optional` monad.  
 Usage:
