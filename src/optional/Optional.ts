@@ -3,7 +3,7 @@ import { Objects } from '../Objects';
 import { NoSuchElementException } from './NoSuchElementException';
 
 export class Optional<T> {
-  private static readonly EMPTY = new Optional<never>(undefined!);
+  private static readonly EMPTY = new Optional<never>(undefined as unknown as never);
 
   private constructor(private readonly value: T) {}
 
