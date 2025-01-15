@@ -135,7 +135,12 @@ export namespace Objects {
     }
   }
 
-  // backed by Objects.deepCopy(..., true), so you can pass obj with functions - they will be mapped to dst objection as is.
+  /**
+   * Backed by Objects.deepCopy(..., true), so you can pass obj with functions - they will be mapped to dst objection as is.
+   * @param dst - target destination object to modify / extend
+   * @param src  - source of incomming changes
+   * @returns true, if dst object was modified
+   */
   export function extend<DST extends {}, SRC extends {}>(
     dst: DST,
     src: SRC,
