@@ -78,7 +78,7 @@ export namespace Objects {
   }
 
   // port of this https://medium.com/@stheodorejohn/javascript-object-deep-equality-comparison-in-javascript-7aa227e889d4
-  export function equals<T>(obj1?: T, obj2?: T): boolean {
+  export function equals<T1, T2>(obj1?: T1, obj2?: T2): boolean {
     if (obj1 === obj2) {
       return true;
     } else if (obj1 && obj2 && Objects.isObject(obj1) && Objects.isObject(obj2)) {
@@ -86,7 +86,7 @@ export namespace Objects {
       const keys2: Set<string> = new Set(Object.keys(obj2));
 
       for (const key of keys1) {
-        if (!Objects.equals(obj1[key as keyof T], obj2[key as keyof T])) {
+        if (!Objects.equals(obj1[key as keyof T1], obj2[key as keyof T2])) {
           return false;
         }
         keys2.delete(key);
@@ -136,19 +136,35 @@ export namespace Objects {
   }
 
   // backed by Objects.deepCopy(..., true), so you can pass obj with functions - they will be mapped to dst objection as is.
-  export function extend<DST extends {}, SRC extends {}>(dst: DST, src: SRC): DST {
+  export function extend<DST extends {}, SRC extends {}>(
+    dst: DST,
+    src: SRC,
+    options?: {
+      canOverwrite?: <DST extends {}, SRC extends {}>(dst: DST, src: SRC, key: keyof SRC) => boolean;
+    }
+  ): boolean {
+    const canOverwrite = options?.canOverwrite ?? (() => true);
+
+    let changed = false;
     if (Objects.isNotNullOrUndefined(src)) {
       Objects.forEach(src, (key: keyof SRC | keyof DST, value: SRC[keyof SRC]): void => {
         if (Objects.isObject(value) && Objects.isObject(dst[key as keyof DST])) {
           // look deeper...
-          Objects.extend(dst[key as keyof DST] as {}, value);
+          changed ||= Objects.extend(dst[key as keyof DST] as {}, value);
         } else {
-          // no merge, just pick a copy
-          dst[key as keyof DST] = Objects.deepCopy(value, true) as unknown as DST[keyof DST];
+          const overwrite = canOverwrite(dst, src, key as keyof SRC);
+          if (overwrite) {
+            // no merge, just pick a copy
+            dst[key as unknown as keyof typeof dst] = Objects.deepCopy(
+              src[key as keyof SRC],
+              true
+            ) as unknown as (typeof dst)[keyof typeof dst];
+          }
+          changed ||= overwrite;
         }
       });
     }
-    return dst;
+    return changed;
   }
 
   // from https://stackoverflow.com/a/69330363

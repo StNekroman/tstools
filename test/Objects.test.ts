@@ -186,6 +186,34 @@ describe('Objects', () => {
     expect(dst.b).toBe(fn);
   });
 
+  test('extend with check', () => {
+    let dst = { a: 1 };
+    let changed = Objects.extend(
+      dst,
+      { a: 1 },
+      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] }
+    );
+    expect(changed).toBeFalsy();
+    expect(dst).toStrictEqual({ a: 1 });
+
+    changed = Objects.extend(
+      dst,
+      { a: 2 },
+      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] }
+    );
+    expect(changed).toBeTruthy();
+    expect(dst).toStrictEqual({ a: 2 });
+
+    dst = { a: 1 };
+    changed = Objects.extend(
+      dst,
+      { b: 2 },
+      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] }
+    );
+    expect(changed).toBeTruthy();
+    expect(dst).toStrictEqual({ a: 1, b: 2 });
+  });
+
   test('isCharacterWhitespace', () => {
     expect(Objects.isCharacterWhitespace('s')).toBe(false);
     expect(Objects.isCharacterWhitespace(' ')).toBe(true);
