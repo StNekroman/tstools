@@ -32,7 +32,7 @@ export function RunInstanceDecorators<C>() {
         }
       }
     } as CTR;
-    Object.defineProperty(newCtr, 'name', (ctr as Types.Newable<C>).name);
+    Object.defineProperty(newCtr, 'name', { value: (ctr as Types.Newable<C>).name });
     return newCtr;
   };
 }
