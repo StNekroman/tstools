@@ -58,6 +58,14 @@ export class Optional<T> {
     }
   }
 
+  public mapAsync<R>(mapper: Functions.MapFunction<T, Promise<R>>): Promise<Optional<R>> {
+    if (this.isEmpty()) {
+      return Promise.resolve(Optional.EMPTY);
+    } else {
+      return mapper(this.value).then((r) => Optional.of(r));
+    }
+  }
+
   public or(provider: Functions.Provider<Optional<T>>): Optional<T> {
     if (this.isPresent()) {
       return this;

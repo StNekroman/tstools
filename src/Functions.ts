@@ -151,4 +151,21 @@ export namespace Functions {
     }
     throw lastError;
   }
+
+  export async function retryAsync<F extends ArgsFunction<unknown[], Promise<unknown>>>(
+    func: F,
+    count: number = 3,
+    onError: Functions.Consumer<unknown> = Functions.noop
+  ): Promise<Awaited<ReturnType<F>>> {
+    let lastError: unknown;
+    for (let i = 0; i < count; i++) {
+      try {
+        return (await func()) as Awaited<ReturnType<F>>;
+      } catch (e: unknown) {
+        lastError = e;
+        onError(e);
+      }
+    }
+    throw lastError;
+  }
 }
