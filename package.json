@@ -1,6 +1,6 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
   "main": "./dist/src/index.js",
@@ -38,10 +38,9 @@
     "@eslint/js": "^9.9.0",
     "@jest/globals": "29.7.0",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "20.14.14",
     "eslint": "^9.9.0",
     "jest": "29.7.0",
-    "rimraf": "5.0.10",
+    "rimraf": "6.0.1",
     "ts-jest": "29.2.4",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.1.0"

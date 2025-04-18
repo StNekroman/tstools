@@ -79,7 +79,7 @@ export namespace Objects {
 
   // port of this https://medium.com/@stheodorejohn/javascript-object-deep-equality-comparison-in-javascript-7aa227e889d4
   export function equals<T1, T2>(obj1?: T1, obj2?: T2): boolean {
-    if (obj1 === obj2) {
+    if ((obj1 as unknown) === (obj2 as unknown)) {
       return true;
     } else if (obj1 && obj2 && Objects.isObject(obj1) && Objects.isObject(obj2)) {
       const keys1: string[] = Object.keys(obj1);
