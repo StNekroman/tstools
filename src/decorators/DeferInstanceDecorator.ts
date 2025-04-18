@@ -18,14 +18,14 @@ function getOrCreateDeferInstanceDecoratorsMetadata<C>(prototype: any): DeferIns
 }
 
 export function RunInstanceDecorators<C>() {
-  return <CTR extends Types.Newable<C>>(ctr: CTR): CTR => {
+  return <CTR extends Types.Newable<C> | { prototype: C }>(ctr: CTR): CTR => {
     const metadata: DeferInstanceDecoratorsMetadata<C> = getDeferInstanceDecoratorsMetadata<C>(ctr.prototype);
     if (!metadata) {
       return ctr;
     }
     ctr = class extends (ctr as Types.Newable) {
-      constructor() {
-        super();
+      constructor(...args: unknown[]) {
+        super(...args);
 
         for (const [propertyName, decorator] of metadata.decorators) {
           decorator(this, propertyName as string, Object.getOwnPropertyDescriptor(this, propertyName)!);
