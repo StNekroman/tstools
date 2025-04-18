@@ -1,7 +1,7 @@
 import { type Types } from '../Types';
 
 interface DeferInstanceDecoratorsMetadata<C> {
-  decorators: [propertyName: keyof C, decorator: PropertyDecorator | MethodDecorator][];
+  decorators: [propertyName: keyof C | string, decorator: PropertyDecorator | MethodDecorator][];
 }
 
 const DeferInstanceDecoratorsMetadataSymbol = Symbol('DeferInstanceDecoratorsMetadata');
@@ -38,7 +38,7 @@ export function RunInstanceDecorators<C>() {
 }
 
 export function DeferInstanceDecorator<C>(decorator: PropertyDecorator | MethodDecorator) {
-  return (target: C, propertyName: keyof C) => {
+  return (target: C, propertyName: keyof C | string) => {
     const metadata: DeferInstanceDecoratorsMetadata<C> = getOrCreateDeferInstanceDecoratorsMetadata<C>(target);
     metadata.decorators.push([propertyName, decorator]);
   };
