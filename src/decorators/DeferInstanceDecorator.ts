@@ -23,7 +23,7 @@ export function RunInstanceDecorators<C>() {
     if (!metadata) {
       return ctr;
     }
-    ctr = class extends (ctr as Types.Newable) {
+    const newCtr = class extends (ctr as Types.Newable) {
       constructor(...args: unknown[]) {
         super(...args);
 
@@ -32,8 +32,8 @@ export function RunInstanceDecorators<C>() {
         }
       }
     } as CTR;
-
-    return ctr;
+    Object.defineProperty(newCtr, 'name', (ctr as Types.Newable<C>).name);
+    return newCtr;
   };
 }
 
