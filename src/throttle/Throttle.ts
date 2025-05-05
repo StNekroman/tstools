@@ -14,7 +14,7 @@ export namespace Throttle {
    * @param callback to be called, throttled by timeout
    * @param timeout in milliseconds
    */
-  export function throttle<ARGS extends unknown[] = void[]>(
+  export function debounce<ARGS extends unknown[] = void[]>(
     callback: Functions.ArgsFunction<ARGS, void>,
     timeout: number
   ): ThrottleFunction<ARGS> {

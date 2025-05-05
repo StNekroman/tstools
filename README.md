@@ -30,7 +30,7 @@ Helper methods for operations with arrays.
 
 Helper methods for operations with objects and different values.
 
-### [Throttle.ts](src/Throttle.ts)
+### [Throttle.ts](src/throttle/Throttle.ts)
 
 Implementations of throttle patten (aka debounce)
 

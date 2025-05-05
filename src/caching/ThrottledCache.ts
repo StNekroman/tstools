@@ -1,35 +1,37 @@
-
-import { LoadingCache } from "./LoadingCache";
+import { LoadingCache } from './LoadingCache';
 import { Deffered } from '../Deffered';
 import { Throttle } from '../throttle/Throttle';
 
 type DefferedTask<T, ARGS extends unknown[]> = {
   args: ARGS;
-  deffered : Deffered<T>;
+  deffered: Deffered<T>;
 };
 
-export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY = string> extends LoadingCache<T, ARGS, KEY> {
+export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY = string> extends LoadingCache<
+  T,
+  ARGS,
+  KEY
+> {
+  private readonly queue: DefferedTask<T, ARGS>[] = [];
 
-  private readonly queue : DefferedTask<T, ARGS>[] = [];
+  private readonly throttledLoadFn: Throttle.ThrottleFunction;
 
-  private readonly throttledLoadFn : Throttle.ThrottleFunction;
-
-  constructor(timeout : number = 200, mapImpl : Map<KEY, Promise<T>> = new Map()) {
+  constructor(timeout: number = 200, mapImpl: Map<KEY, Promise<T>> = new Map()) {
     super(mapImpl);
 
-    this.throttledLoadFn = Throttle.throttle(() => {
+    this.throttledLoadFn = Throttle.debounce(() => {
       this.processQueue();
     }, timeout);
   }
 
-  public get(...args: ARGS) : Promise<T> {
+  public get(...args: ARGS): Promise<T> {
     if (super.has(...args)) {
       return super.get(...args);
     }
 
-    const defferedTask : DefferedTask<T, ARGS> = {
-      args : args,
-      deffered: new Deffered()
+    const defferedTask: DefferedTask<T, ARGS> = {
+      args: args,
+      deffered: new Deffered(),
     };
     this.queue.push(defferedTask);
 
@@ -38,7 +40,7 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
     return defferedTask.deffered.promise;
   }
 
-  public loadAll(argsArray :  ARGS[]) : Promise<PromiseSettledResult<T>[]> {
+  public loadAll(argsArray: ARGS[]): Promise<PromiseSettledResult<T>[]> {
     return Promise.allSettled(argsArray.map((args: ARGS) => this.load(...args))); // just one by one, override this method if your cache/service knows how to load data in bulk/batch
   }
 
@@ -47,10 +49,10 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
     this.queue.length = 0; // dont touch queue any more (in this processing frame)
 
     if (tasks.length > 0) {
-      this.loadAll(tasks.map(task => task.args)).then((results : PromiseSettledResult<T>[]) => {
+      this.loadAll(tasks.map((task) => task.args)).then((results: PromiseSettledResult<T>[]) => {
         for (let i = 0; i < tasks.length; i++) {
           const result = results[i];
-          if (result.status === "fulfilled") {
+          if (result.status === 'fulfilled') {
             tasks[i].deffered.resolve(result.value);
           } else {
             tasks[i].deffered.reject(result.reason);
@@ -66,7 +68,7 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
     const tasks = this.queue.slice();
     this.queue.length = 0;
     for (const task of tasks) {
-      task.deffered.reject("clear cache");
+      task.deffered.reject('clear cache');
     }
   }
 }
