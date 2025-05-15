@@ -1,8 +1,9 @@
-
+// prettier-ignore
 export namespace Types {
 
     export type Primitive = undefined | null | boolean | string | number | bigint | symbol;
     export type Mutable<T> = { -readonly [P in keyof T ]: T[P] };
+    export type WithRequired<T, PROPS extends readonly (keyof T)[]> = T & Required<Pick<T, PROPS[number]>>;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export interface Newable<R = {}, ARGS extends any[] = any[]> { new (...args: ARGS) : R; }
