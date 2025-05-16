@@ -7,7 +7,7 @@ export class Optional<T> {
 
   private constructor(private readonly value: T) {}
 
-  public static of<T>(value: T | undefined): Optional<T> {
+  public static of<T>(value: T | undefined | null): Optional<T> {
     if (Objects.isNotNullOrUndefined(value)) {
       return new Optional(value);
     } else {
