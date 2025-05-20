@@ -81,7 +81,7 @@ export namespace Arrays {
     if (Array.isArray(itemOrArray)) {
       return itemOrArray[0];
     } else {
-      itemOrArray;
+      return itemOrArray;
     }
   }
 }
