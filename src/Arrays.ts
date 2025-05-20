@@ -1,4 +1,4 @@
-import { Functions } from "./Functions";
+import { Functions } from './Functions';
 
 export namespace Arrays {
   export function deleteItem<T>(arr: T[], item: T): boolean {
@@ -62,11 +62,7 @@ export namespace Arrays {
    * @param includeLast if true (default is false) - last non matching item will be included.
    * @returns filtered array
    */
-  export function filterUntil<T>(
-    arr: T[],
-    filter: Functions.Filter<T>,
-    includeLast: boolean = false
-  ): T[] {
+  export function filterUntil<T>(arr: T[], filter: Functions.Filter<T>, includeLast: boolean = false): T[] {
     const result = [];
     for (const item of arr) {
       if (filter(item)) {
@@ -79,5 +75,13 @@ export namespace Arrays {
       }
     }
     return result;
+  }
+
+  export function getFirst<T>(itemOrArray: T | T[]): T | undefined {
+    if (Array.isArray(itemOrArray)) {
+      return itemOrArray[0];
+    } else {
+      itemOrArray;
+    }
   }
 }
