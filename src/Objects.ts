@@ -245,4 +245,8 @@ export namespace Objects {
     });
     return array;
   }
+
+  export function setPrototypeOf<P extends object, T>(target: T, proto: P): T & P {
+    return Object.setPrototypeOf(target, proto);
+  }
 }
