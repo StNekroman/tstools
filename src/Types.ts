@@ -30,6 +30,8 @@ export namespace Types {
     // from https://stackoverflow.com/a/66144780
     export type KeysWithValsOfType<T, V> = keyof { [ P in keyof T as T[P] extends V ? P : never ] : P };
 
+    export type FunctionPropertyNames<T> = Types.KeysWithValsOfType<T, (...args: unknown[]) => unknown>;
+
     /**
      * Generates new Type, altering each fields name with prefix/suffix - works for first level only.
      */
