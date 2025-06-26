@@ -23,7 +23,7 @@ export class RefSet<KEY> implements ISet<KEY> {
 
   @(Implements<ISet<KEY>>)
   public delete(cacheKey: KEY): boolean {
-    let refCountedValue = this.map.get(cacheKey)?.decrement() ?? 0;
+    const refCountedValue = this.map.get(cacheKey)?.decrement() ?? 0;
     if (refCountedValue <= 0) {
       this.map.delete(cacheKey);
       return true;

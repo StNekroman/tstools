@@ -6,6 +6,7 @@ interface DeferInstanceDecoratorsMetadata<C extends Object> {
 
 const DeferInstanceDecoratorsMetadataSymbol = Symbol('DeferInstanceDecoratorsMetadata');
 function getDeferInstanceDecoratorsMetadata<C extends Object>(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   target: any
 ): DeferInstanceDecoratorsMetadata<C> | undefined {
   if (target.hasOwnProperty(DeferInstanceDecoratorsMetadataSymbol)) {
@@ -13,6 +14,7 @@ function getDeferInstanceDecoratorsMetadata<C extends Object>(
   }
   return undefined;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getOrCreateDeferInstanceDecoratorsMetadata<C extends Object>(target: any): DeferInstanceDecoratorsMetadata<C> {
   let metadata: DeferInstanceDecoratorsMetadata<C>;
   if (target.hasOwnProperty(DeferInstanceDecoratorsMetadataSymbol)) {

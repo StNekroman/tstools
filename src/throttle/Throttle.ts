@@ -19,6 +19,7 @@ export namespace Throttle {
     timeout: number
   ): ThrottleFunction<ARGS> {
     let lastArgs: ARGS | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let timerId: any | undefined;
 
     const throttleFunction: ThrottleFunction<ARGS> = (...args: ARGS): void => {
@@ -55,6 +56,7 @@ export namespace Throttle {
     timeout: number
   ): ThrottleFunction<ARGS> {
     let lastArgs: ARGS | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let timerId: any | undefined;
 
     const throttleFunction: ThrottleFunction<ARGS> = (...args: ARGS): void => {
