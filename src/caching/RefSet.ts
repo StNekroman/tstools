@@ -11,25 +11,24 @@ export class RefSet<KEY> implements ISet<KEY> {
   }
 
   @(Implements<ISet<KEY>>)
-  public add(cacheKey: KEY): void {
+  public add(cacheKey: KEY): number {
     let refCountedValue = this.map.get(cacheKey);
     if (!refCountedValue) {
       refCountedValue = new RefCountedValue(void 0);
       this.map.set(cacheKey, refCountedValue);
+      return refCountedValue.getRefCount();
     } else {
-      refCountedValue.increment();
+      return refCountedValue.increment();
     }
   }
 
   @(Implements<ISet<KEY>>)
-  public delete(cacheKey: KEY): boolean {
+  public delete(cacheKey: KEY): number {
     const refCountedValue = this.map.get(cacheKey)?.decrement() ?? 0;
     if (refCountedValue <= 0) {
       this.map.delete(cacheKey);
-      return true;
-    } else {
-      return false;
     }
+    return refCountedValue;
   }
 
   @(Implements<ISet<KEY>>)
