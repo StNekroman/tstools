@@ -35,4 +35,14 @@ export class RefSet<KEY> implements ISet<KEY> {
   public clear(): void {
     this.map.clear();
   }
+
+  public keys(): IterableIterator<KEY> {
+    return this.map.keys();
+  }
+
+  public *[Symbol.iterator](): IterableIterator<KEY> {
+    for (const key of this.map.keys()) {
+      yield key;
+    }
+  }
 }
