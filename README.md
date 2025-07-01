@@ -42,7 +42,7 @@ _Highlights:_
 - [Functions.memo](examples/functions/memo.ts) caching/"memoization" of passed function
 - [Functions.pipe](examples/functions/pipe.ts) piping/chaining of functions
 
-### [Cache.ts](src/Cache.ts)
+### [Cache.ts](src/caching/Cache.ts)
 
 Promise-based implemetation of caching.  
 _Examples of usage:_
@@ -52,7 +52,7 @@ _Examples of usage:_
 - [ObjectArgCache.ts](examples/cache/ObjectArgCache.ts)
 - [ObjectKeyCache.ts](examples/cache/ObjectKeyCache.ts)
 
-### [ThrottledCache.ts](src/ThrottledCache.ts)
+### [ThrottledCache.ts](src/caching/ThrottledCache.ts)
 
 Combination of Cache + Throttle patterns.  
 _Examples of usage:_
@@ -64,6 +64,10 @@ _Examples of usage:_
 
 - [Implements](src/decorators/Implements.ts) — like built-in `overrides` keyword, but for ensuring, that method/prop implements one of class'es interface
 - [SingletonGuard](src/decorators/SingletonGuard.ts) — ensures that class can have only not more than 1 instance. (`new` invoked only 0 or 1 times)
+
+### [RefSet.ts](src/caching/RefSet.ts)
+
+Implementation of Set, which keeps track and reference counts and performs actual deletion of entry on refCount = 0.
 
 ### [Optional.ts](src/optional/Optional.ts)
 

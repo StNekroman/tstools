@@ -2,59 +2,85 @@ import { Implements } from '../decorators';
 import { type ISet } from './ISet';
 import { RefCountedValue } from './RefCountedValue';
 
-export class RefSet<KEY> implements ISet<KEY> {
-  private readonly map: Map<KEY, RefCountedValue<void>> = new Map();
+/**
+ * Implementation of ISet, which holds references count for each entry.
+ * Subsequent additions will increase ref counter.
+ * Subsequent removal will decrease ref counter, actual deletion will happen on refCount = 0
+ */
+export class RefSet<VALUE> implements ISet<VALUE> {
+  private readonly map: Map<VALUE, RefCountedValue<void>> = new Map();
 
-  @(Implements<ISet<KEY>>)
-  public has(cacheKey: KEY): boolean {
-    return this.map.has(cacheKey);
+  /**
+   * Checks if given valus is present in the set.
+   */
+  @(Implements<ISet<VALUE>>)
+  public has(value: VALUE): boolean {
+    return this.map.has(value);
   }
 
-  @(Implements<ISet<KEY>>)
-  public add(cacheKey: KEY): number {
-    let refCountedValue = this.map.get(cacheKey);
+  /**
+   * Subsequent additions will increase ref counter.
+   * @param cacheKey * Subsequent additions will increase ref counter.
+   * @returns new ref counter for given value
+   */
+  @(Implements<ISet<VALUE>>)
+  public add(value: VALUE): number {
+    let refCountedValue = this.map.get(value);
     if (!refCountedValue) {
       refCountedValue = new RefCountedValue(void 0);
-      this.map.set(cacheKey, refCountedValue);
+      this.map.set(value, refCountedValue);
       return refCountedValue.getRefCount();
     } else {
       return refCountedValue.increment();
     }
   }
 
-  @(Implements<ISet<KEY>>)
-  public delete(cacheKey: KEY, allRefs: boolean = false): number {
+  /**
+   * Decreases ref counter, actual deletion happens on refCount = 0
+   * @returns new ref counter for given value
+   */
+  @(Implements<ISet<VALUE>>)
+  public delete(value: VALUE, allRefs: boolean = false): number {
     if (allRefs) {
-      this.map.delete(cacheKey);
+      this.map.delete(value);
       return 0;
     } else {
-      const refCountedValue = this.map.get(cacheKey)?.decrement() ?? 0;
+      const refCountedValue = this.map.get(value)?.decrement() ?? 0;
       if (refCountedValue <= 0) {
-        this.map.delete(cacheKey);
+        this.map.delete(value);
       }
       return refCountedValue;
     }
   }
 
-  @(Implements<ISet<KEY>>)
+  /**
+   * Removes completely all entries from this set, without looking on ref counters.
+   */
+  @(Implements<ISet<VALUE>>)
   public clear(): void {
     this.map.clear();
   }
 
-  public refs(cacheKey: KEY): number {
-    const refCountedValue = this.map.get(cacheKey);
+  /**
+   * @returns ref counter for specified value, if present
+   */
+  public refs(value: VALUE): number {
+    const refCountedValue = this.map.get(value);
     return refCountedValue?.getRefCount() ?? 0;
   }
 
+  /**
+   * @returns size of the set
+   */
   public size(): number {
     return this.map.size;
   }
 
-  public keys(): IterableIterator<KEY> {
+  public keys(): IterableIterator<VALUE> {
     return this.map.keys();
   }
 
-  public *[Symbol.iterator](): IterableIterator<KEY> {
+  public *[Symbol.iterator](): IterableIterator<VALUE> {
     for (const key of this.map.keys()) {
       yield key;
     }
