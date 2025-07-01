@@ -36,6 +36,10 @@ export class RefSet<KEY> implements ISet<KEY> {
     this.map.clear();
   }
 
+  public size(): number {
+    return this.map.size;
+  }
+
   public keys(): IterableIterator<KEY> {
     return this.map.keys();
   }
