@@ -1,6 +1,6 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
   "main": "./dist/src/index.js",

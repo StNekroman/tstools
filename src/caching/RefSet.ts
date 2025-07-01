@@ -36,6 +36,11 @@ export class RefSet<KEY> implements ISet<KEY> {
     this.map.clear();
   }
 
+  public refs(cacheKey: KEY): number {
+    const refCountedValue = this.map.get(cacheKey);
+    return refCountedValue?.getRefCount() ?? 0;
+  }
+
   public size(): number {
     return this.map.size;
   }
