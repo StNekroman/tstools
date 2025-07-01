@@ -23,12 +23,17 @@ export class RefSet<KEY> implements ISet<KEY> {
   }
 
   @(Implements<ISet<KEY>>)
-  public delete(cacheKey: KEY): number {
-    const refCountedValue = this.map.get(cacheKey)?.decrement() ?? 0;
-    if (refCountedValue <= 0) {
+  public delete(cacheKey: KEY, allRefs: boolean = false): number {
+    if (allRefs) {
       this.map.delete(cacheKey);
+      return 0;
+    } else {
+      const refCountedValue = this.map.get(cacheKey)?.decrement() ?? 0;
+      if (refCountedValue <= 0) {
+        this.map.delete(cacheKey);
+      }
+      return refCountedValue;
     }
-    return refCountedValue;
   }
 
   @(Implements<ISet<KEY>>)
