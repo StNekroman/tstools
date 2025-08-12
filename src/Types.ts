@@ -3,7 +3,8 @@ export namespace Types {
 
     export type Primitive = undefined | null | boolean | string | number | bigint | symbol;
     export type Mutable<T> = { -readonly [P in keyof T ]: T[P] };
-    export type WithRequired<T, PROPS extends readonly (keyof T)[]> = T & Required<Pick<T, PROPS[number]>>;
+    export type WithRequired<T, PROPS extends keyof T> = T & Required<Pick<T, PROPS>>;
+    export type WithOptional<T, PROPS extends keyof T> = Omit<T, PROPS> & Partial<Pick<T, PROPS>>;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export interface Newable<R = {}, ARGS extends any[] = any[]> { new (...args: ARGS) : R; }
