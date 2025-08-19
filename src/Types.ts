@@ -5,14 +5,16 @@ export namespace Types {
     export type Mutable<T> = { -readonly [P in keyof T ]: T[P] };
     export type WithRequired<T, PROPS extends keyof T> = T & Required<Pick<T, PROPS>>;
     export type WithOptional<T, PROPS extends keyof T> = Omit<T, PROPS> & Partial<Pick<T, PROPS>>;
+    export type NonFunction<T> = T extends Function ? never : T;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export interface Newable<R = {}, ARGS extends any[] = any[]> { new (...args: ARGS) : R; }
 
     // guard to make sure that type can be serialized - doesn't contain functions.
-    export type Serializable<T = unknown> = {
-        [K in keyof T]: Required<T>[K] extends Function ? never : T[K] & Serializable<T[K]>;    
+    export type SerializableObject<T = unknown> = {
+      [K in keyof T]: Required<T>[K] extends Function ? never : T[K] & SerializableObject<T[K]>;
     };
+    export type Serializable<T = unknown> = SerializableObject<NonFunction<T>>;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
     export type LastTypeFromTuple<T extends any[]> = T extends [...infer _, infer L] ? L : never;

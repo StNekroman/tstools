@@ -103,9 +103,9 @@ export namespace Objects {
    * when @param transferNotCopyable set to `false` - it will perform like structuredClone, but not all fields types are covered and it won't create copies of strings - they will go by reference. When unable to clone - expection raised.
    * when @param transferNotCopyable set to `true` - will try to clone, if not cloneable - just a ref will be copies/transferred.
    */
-  export function deepCopy<T>(obj: Types.Serializable<T>): T;
+  export function deepCopy<T>(obj: Types.SerializableObject<T>): T;
   export function deepCopy<T>(obj: T, transferNotCopyable: true): T;
-  export function deepCopy<T>(obj: T | Types.Serializable<T>, transferNotCopyable?: true): T {
+  export function deepCopy<T>(obj: T | Types.SerializableObject<T>, transferNotCopyable?: true): T {
     if (Objects.isPrimitive(obj)) {
       return obj;
     }
