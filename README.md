@@ -81,6 +81,45 @@ const value = Optional.of(2)
                       .orElse(0);
 ```
 
+### [Result.ts](src/Result.ts)
+
+Railway-oriented programming pattern for error handling. A `Result<T, E>` represents either a successful value (`Success<T>`) or an error (`Failure<E>`). This provides a functional approach to error handling without throwing exceptions.
+
+_Examples of usage:_
+
+```TypeScript
+// Creating results
+const success = Result.success("Hello world");
+const failure = Result.failure("Something went wrong");
+
+// Chaining operations - continues only if successful
+const result = Result.success(5)
+  .map(x => x * 2)           // 10
+  .flatMap(x => x > 8 ? Result.success(x) : Result.failure("Too small"))
+  .map(x => x.toString());   // "10"
+
+// Error handling
+if (result.isSuccess()) {
+  console.log(result.getData()); // "10"
+} else {
+  console.log(result.getError());
+}
+
+// Grouping multiple results
+const results = [
+  Result.success("data1"),
+  Result.failure("error1"),
+  Result.success("data2")
+];
+const grouped = Result.groupResults(results);
+// grouped.successes: [Success("data1"), Success("data2")]
+// grouped.failures: [Failure("error1")]
+
+// Serialization support
+const json = result.toJSON();
+const restored = Result.from(json);
+```
+
 ### [Sorter.ts](src/Sorter.ts)
 
 Sorter (comparator) builder - by fieldname or by custom extractor.  
