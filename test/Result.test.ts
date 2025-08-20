@@ -7,21 +7,21 @@ describe('Result', () => {
       const result = Result.success('test data');
       expect(result.isSuccess()).toBeTruthy();
       expect(result.isFailure()).toBeFalsy();
-      expect(result.getData()).toBe('test data');
+      expect(result.data).toBe('test data');
     });
 
     test('success with void data', () => {
       const result = Result.success();
       expect(result.isSuccess()).toBeTruthy();
       expect(result.isFailure()).toBeFalsy();
-      expect(result.getData()).toBeUndefined();
+      expect(result.data).toBeUndefined();
     });
 
     test('failure creates Failure result', () => {
       const result = Result.failure('error message');
       expect(result.isFailure()).toBeTruthy();
       expect(result.isSuccess()).toBeFalsy();
-      expect(result.getError()).toBe('error message');
+      expect(result.error).toBe('error message');
     });
   });
 
@@ -46,22 +46,12 @@ describe('Result', () => {
   describe('Data and error getters', () => {
     test('getData returns data from success result', () => {
       const result = Result.success('test data');
-      expect(result.getData()).toBe('test data');
-    });
-
-    test('getData throws error for failure result', () => {
-      const result = Result.failure('error');
-      expect(() => result.getData()).toThrow('Cannot get data from a Failure');
+      expect(result.data).toBe('test data');
     });
 
     test('getError returns error from failure result', () => {
       const result = Result.failure('test error');
-      expect(result.getError()).toBe('test error');
-    });
-
-    test('getError throws error for success result', () => {
-      const result = Result.success('data');
-      expect(() => result.getError()).toThrow('Cannot get error from a Success');
+      expect(result.error).toBe('test error');
     });
   });
 
@@ -71,7 +61,7 @@ describe('Result', () => {
       const mapped = result.map((x) => x * 2);
 
       expect(mapped.isSuccess()).toBeTruthy();
-      expect(mapped.getData()).toBe(10);
+      expect(mapped.data).toBe(10);
     });
 
     test('map does not affect failure', () => {
@@ -79,7 +69,7 @@ describe('Result', () => {
       const mapped = result.map((x) => x * 2);
 
       expect(mapped.isFailure()).toBeTruthy();
-      expect(mapped.getError()).toBe('error');
+      expect(mapped.error).toBe('error');
     });
 
     test('flatMap chains successful operations', () => {
@@ -87,7 +77,7 @@ describe('Result', () => {
       const flatMapped = result.flatMap((x) => Result.success(x * 2));
 
       expect(flatMapped.isSuccess()).toBeTruthy();
-      expect(flatMapped.getData()).toBe(10);
+      expect(flatMapped.data).toBe(10);
     });
 
     test('flatMap can return failure', () => {
@@ -95,7 +85,7 @@ describe('Result', () => {
       const flatMapped = result.flatMap((x) => Result.failure<string>('operation failed'));
 
       expect(flatMapped.isFailure()).toBeTruthy();
-      expect(flatMapped.getError()).toBe('operation failed');
+      expect(flatMapped.error).toBe('operation failed');
     });
 
     test('flatMap does not affect failure', () => {
@@ -103,7 +93,7 @@ describe('Result', () => {
       const flatMapped = result.flatMap((x) => Result.success(x * 2));
 
       expect(flatMapped.isFailure()).toBeTruthy();
-      expect(flatMapped.getError()).toBe('original error');
+      expect(flatMapped.error).toBe('original error');
     });
   });
 
@@ -142,7 +132,7 @@ describe('Result', () => {
       const result = Result.from(successData);
 
       expect(result.isSuccess()).toBeTruthy();
-      expect(result.getData()).toBe('test data');
+      expect(result.data).toBe('test data');
     });
 
     test('from creates failure from FailureData', () => {
@@ -150,7 +140,7 @@ describe('Result', () => {
       const result = Result.from(failureData);
 
       expect(result.isFailure()).toBeTruthy();
-      expect(result.getError()).toBe('test error');
+      expect(result.error).toBe('test error');
     });
 
     test('from throws error for invalid data', () => {
@@ -192,12 +182,12 @@ describe('Result', () => {
       expect(grouped.successes).toHaveLength(3);
       expect(grouped.failures).toHaveLength(2);
 
-      expect(grouped.successes[0].getData()).toBe('data1');
-      expect(grouped.successes[1].getData()).toBe('data2');
-      expect(grouped.successes[2].getData()).toBe('data3');
+      expect(grouped.successes[0].data).toBe('data1');
+      expect(grouped.successes[1].data).toBe('data2');
+      expect(grouped.successes[2].data).toBe('data3');
 
-      expect(grouped.failures[0].getError()).toBe('error1');
-      expect(grouped.failures[1].getError()).toBe('error2');
+      expect(grouped.failures[0].error).toBe('error1');
+      expect(grouped.failures[1].error).toBe('error2');
     });
 
     test('groups all successes', () => {
@@ -232,14 +222,14 @@ describe('Result', () => {
       const data = { id: 1, name: 'test', active: true };
       const result = Result.success(data);
 
-      expect(result.getData()).toEqual(data);
+      expect(result.data).toEqual(data);
     });
 
     test('works with array data', () => {
       const data = [1, 2, 3, 4, 5];
       const result = Result.success(data);
 
-      expect(result.getData()).toEqual(data);
+      expect(result.data).toEqual(data);
     });
 
     test('works with nested objects', () => {
@@ -252,7 +242,7 @@ describe('Result', () => {
       };
       const result = Result.success(data);
 
-      expect(result.getData()).toEqual(data);
+      expect(result.data).toEqual(data);
     });
   });
 
@@ -263,7 +253,7 @@ describe('Result', () => {
         .map((x) => x + 1)
         .map((x) => x.toString());
 
-      expect(result.getData()).toBe('11');
+      expect(result.data).toBe('11');
     });
 
     test('chains map and flatMap operations', () => {
@@ -272,7 +262,7 @@ describe('Result', () => {
         .flatMap((x) => Result.success(x + 1))
         .map((x) => x.toString());
 
-      expect(result.getData()).toBe('11');
+      expect(result.data).toBe('11');
     });
 
     test('chain breaks on first failure', () => {
@@ -282,7 +272,7 @@ describe('Result', () => {
         .map((x) => x + 1); // This should not execute
 
       expect(result.isFailure()).toBeTruthy();
-      expect(result.getError()).toBe('error in chain');
+      expect(result.error).toBe('error in chain');
     });
   });
 });

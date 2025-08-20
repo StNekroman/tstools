@@ -16,10 +16,10 @@ export namespace Failure {
   }
 }
 
-export class Result<T, E> {
+export class Result<T, E> implements SuccessData<T>, FailureData<E> {
   private constructor(data: T, error: never);
   private constructor(data: never, error: E);
-  private constructor(private readonly data: T, private readonly error: E) {}
+  private constructor(public readonly _data: T, public readonly _error: E) {}
 
   public static success(): Success<void>;
   public static success<T = void>(data: T): Success<T>;
@@ -42,35 +42,35 @@ export class Result<T, E> {
   }
 
   public isSuccess(): this is Success<T> {
-    return this.error === undefined;
+    return this._error === undefined;
   }
 
   public isFailure(): this is Failure<E> {
-    return this.error !== undefined;
+    return this._error !== undefined;
   }
 
-  public getData(): T {
+  public get data(): T {
     if (this.isSuccess()) return this.data;
     throw new Error('Cannot get data from a Failure');
   }
 
-  public getError(): E {
+  public get error(): E {
     if (this.isFailure()) return this.error;
     throw new Error('Cannot get error from a Success');
   }
 
   public map<U>(f: Functions.MapFunction<T, U>): Result<U, E> {
-    return this.isSuccess() ? Result.success(f(this.data)) : (this as unknown as Result<U, E>);
+    return this.isSuccess() ? Result.success(f(this._data)) : (this as unknown as Result<U, E>);
   }
 
   public flatMap<T2, E2>(f: Functions.MapFunction<T, Result<T2, E2>>): Result<T2, E | E2> {
-    return this.isSuccess() ? f(this.data) : (this as unknown as Result<never, E2>);
+    return this.isSuccess() ? f(this._data) : (this as unknown as Result<never, E2>);
   }
 
   public toJSON(): SuccessData<T> | FailureData<E> {
     return {
-      data: this.data,
-      error: this.error,
+      data: this._data,
+      error: this._error,
     };
   }
 
