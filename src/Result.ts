@@ -2,8 +2,8 @@ import { type Functions } from './Functions';
 
 export type Success<T> = Result<T, never>;
 export type Failure<E> = Result<never, E>;
-export type SuccessData<T> = Pick<Success<T>, 'data'>;
-export type FailureData<E> = Pick<Failure<E>, 'error'>;
+export type SuccessData<T> = { data: T };
+export type FailureData<E> = { error: E };
 
 export namespace Success {
   export function isSuccessData<T>(result: SuccessData<T> | FailureData<unknown>): result is SuccessData<T> {
@@ -19,7 +19,7 @@ export namespace Failure {
 export class Result<T, E> {
   private constructor(data: T, error: never);
   private constructor(data: never, error: E);
-  private constructor(public readonly data: T, public readonly error: E) {}
+  private constructor(private readonly data: T, private readonly error: E) {}
 
   public static success(): Success<void>;
   public static success<T = void>(data: T): Success<T>;
@@ -50,12 +50,12 @@ export class Result<T, E> {
   }
 
   public getData(): T {
-    if (this.isSuccess()) return this.data as T;
+    if (this.isSuccess()) return this.data;
     throw new Error('Cannot get data from a Failure');
   }
 
   public getError(): E {
-    if (this.isFailure()) return this.error as E;
+    if (this.isFailure()) return this.error;
     throw new Error('Cannot get error from a Success');
   }
 

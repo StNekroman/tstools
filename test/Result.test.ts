@@ -7,21 +7,21 @@ describe('Result', () => {
       const result = Result.success('test data');
       expect(result.isSuccess()).toBeTruthy();
       expect(result.isFailure()).toBeFalsy();
-      expect(result.data).toBe('test data');
+      expect(result.getData()).toBe('test data');
     });
 
     test('success with void data', () => {
       const result = Result.success();
       expect(result.isSuccess()).toBeTruthy();
       expect(result.isFailure()).toBeFalsy();
-      expect(result.data).toBeUndefined();
+      expect(result.getData()).toBeUndefined();
     });
 
     test('failure creates Failure result', () => {
       const result = Result.failure('error message');
       expect(result.isFailure()).toBeTruthy();
       expect(result.isSuccess()).toBeFalsy();
-      expect(result.error).toBe('error message');
+      expect(result.getError()).toBe('error message');
     });
   });
 
