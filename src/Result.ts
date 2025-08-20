@@ -50,12 +50,12 @@ export class Result<T, E> implements SuccessData<T>, FailureData<E> {
   }
 
   public get data(): T {
-    if (this.isSuccess()) return this.data;
+    if (this.isSuccess()) return this._data;
     throw new Error('Cannot get data from a Failure');
   }
 
   public get error(): E {
-    if (this.isFailure()) return this.error;
+    if (this.isFailure()) return this._error;
     throw new Error('Cannot get error from a Success');
   }
 
