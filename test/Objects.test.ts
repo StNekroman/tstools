@@ -283,4 +283,134 @@ describe('Objects', () => {
     expect(array).toHaveLength(8);
     expect(array.reduce((counter, obj2) => counter + obj2.num, 0)).toEqual(128);
   });
+
+  describe('deepFreeze', () => {
+    test('should freeze primitive values', () => {
+      expect(Objects.deepFreeze(42)).toBe(42);
+      expect(Objects.deepFreeze('hello')).toBe('hello');
+      expect(Objects.deepFreeze(true)).toBe(true);
+      expect(Objects.deepFreeze(null)).toBe(null);
+      expect(Objects.deepFreeze(undefined)).toBe(undefined);
+    });
+
+    test('should freeze simple objects', () => {
+      const obj = { a: 1, b: 'test' };
+      const frozen = Objects.deepFreeze(obj);
+
+      expect(Object.isFrozen(frozen)).toBe(true);
+      expect(frozen).toBe(obj); // Same reference
+      expect(() => {
+        (frozen as any).a = 999;
+      }).toThrow();
+    });
+
+    test('should recursively freeze nested objects', () => {
+      const obj = {
+        level1: {
+          level2: {
+            value: 'deep',
+          },
+          array: [1, 2, { nested: true }],
+        },
+      };
+
+      const frozen = Objects.deepFreeze(obj);
+
+      expect(Object.isFrozen(frozen)).toBe(true);
+      expect(Object.isFrozen(frozen.level1)).toBe(true);
+      expect(Object.isFrozen(frozen.level1.level2)).toBe(true);
+      expect(Object.isFrozen(frozen.level1.array)).toBe(true);
+      expect(Object.isFrozen(frozen.level1.array[2])).toBe(true);
+    });
+
+    test('should freeze arrays and their elements', () => {
+      const arr = [1, { nested: 'object' }, [2, 3, { deep: true }]];
+      const frozen = Objects.deepFreeze(arr);
+
+      expect(Object.isFrozen(frozen)).toBe(true);
+      expect(Object.isFrozen(frozen[1])).toBe(true);
+      expect(Object.isFrozen(frozen[2])).toBe(true);
+      expect(Object.isFrozen((frozen[2] as any)[2])).toBe(true);
+
+      expect(() => {
+        (frozen as any).push(4);
+      }).toThrow();
+
+      expect(() => {
+        (frozen[1] as any).nested = 'changed';
+      }).toThrow();
+    });
+
+    test('should handle circular references without infinite recursion', () => {
+      const obj: any = { name: 'parent' };
+      obj.self = obj; // Circular reference
+
+      expect(() => Objects.deepFreeze(obj)).not.toThrow();
+      expect(Object.isFrozen(obj)).toBe(true);
+    });
+
+    test('should handle already frozen objects', () => {
+      const obj = { value: 123 };
+      Object.freeze(obj);
+
+      const result = Objects.deepFreeze(obj);
+      expect(result).toBe(obj);
+      expect(Object.isFrozen(result)).toBe(true);
+    });
+
+    test('should return correct TypeScript type', () => {
+      const obj = { mutable: 'value', nested: { prop: 42 } };
+      const frozen = Objects.deepFreeze(obj);
+
+      // TypeScript should treat this as DeepReadonly
+      // This test verifies the return type is correct
+      expect(frozen.mutable).toBe('value');
+      expect(frozen.nested.prop).toBe(42);
+    });
+
+    test('should handle Date objects', () => {
+      const date = new Date('2023-01-01');
+      const obj = { timestamp: date };
+
+      const frozen = Objects.deepFreeze(obj);
+
+      expect(Object.isFrozen(frozen)).toBe(true);
+      expect(Object.isFrozen(frozen.timestamp)).toBe(true);
+      expect(frozen.timestamp.getTime()).toBe(date.getTime());
+    });
+
+    test('should handle mixed nested structures', () => {
+      const complex = {
+        users: [
+          { id: 1, profile: { name: 'Alice', settings: { theme: 'dark' } } },
+          { id: 2, profile: { name: 'Bob', settings: { theme: 'light' } } },
+        ],
+        config: {
+          api: { url: 'https://api.example.com', timeout: 5000 },
+          features: ['auth', 'notifications'],
+        },
+      };
+
+      const frozen = Objects.deepFreeze(complex);
+
+      // Check all levels are frozen
+      expect(Object.isFrozen(frozen)).toBe(true);
+      expect(Object.isFrozen(frozen.users)).toBe(true);
+      expect(Object.isFrozen(frozen.users[0])).toBe(true);
+      expect(Object.isFrozen(frozen.users[0].profile)).toBe(true);
+      expect(Object.isFrozen(frozen.users[0].profile.settings)).toBe(true);
+      expect(Object.isFrozen(frozen.config)).toBe(true);
+      expect(Object.isFrozen(frozen.config.api)).toBe(true);
+      expect(Object.isFrozen(frozen.config.features)).toBe(true);
+
+      // Verify mutations throw errors
+      expect(() => {
+        (frozen.users[0].profile as any).name = 'Charlie';
+      }).toThrow();
+
+      expect(() => {
+        (frozen.config.features as any).push('newFeature');
+      }).toThrow();
+    });
+  });
 });

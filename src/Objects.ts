@@ -249,4 +249,21 @@ export namespace Objects {
   export function setPrototypeOf<P extends object, T>(target: T, proto: P): T & P {
     return Object.setPrototypeOf(target, proto);
   }
+
+  /**
+   * Freezes an object and all its properties recursively.
+   * @param obj - The object to freeze.
+   * @returns The frozen object.
+   */
+  export function deepFreeze<T>(obj: T): Types.DeepReadonly<T> {
+    if (typeof obj === 'object' && obj != null && !Object.isFrozen(obj)) {
+      Object.freeze(obj);
+      if (Array.isArray(obj)) {
+        obj.forEach((prop) => deepFreeze(prop));
+      } else {
+        Object.values(obj).forEach((prop) => deepFreeze(prop));
+      }
+    }
+    return obj as Types.DeepReadonly<T>;
+  }
 }
