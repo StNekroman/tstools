@@ -284,6 +284,218 @@ describe('Objects', () => {
     expect(array.reduce((counter, obj2) => counter + obj2.num, 0)).toEqual(128);
   });
 
+  describe('visit function', () => {
+    interface TreeNode {
+      id: string;
+      value: number;
+      children?: TreeNode[];
+      parent?: TreeNode;
+    }
+
+    test('visits simple tree structure', () => {
+      const tree: TreeNode = {
+        id: 'root',
+        value: 1,
+        children: [
+          { id: 'child1', value: 2 },
+          { id: 'child2', value: 3, children: [{ id: 'grandchild', value: 4 }] }
+        ]
+      };
+
+      const visited: string[] = [];
+      const levels: number[] = [];
+
+      Objects.visit(tree, (node, level) => {
+        visited.push(node.id);
+        levels.push(level);
+        return node.children;
+      });
+
+      expect(visited).toEqual(['root', 'child1', 'child2', 'grandchild']);
+      expect(levels).toEqual([0, 1, 1, 2]);
+    });
+
+    test('visits empty tree', () => {
+      const tree: TreeNode = { id: 'lonely', value: 42 };
+      const visited: string[] = [];
+
+      Objects.visit(tree, (node, level) => {
+        visited.push(node.id);
+        return node.children;
+      });
+
+      expect(visited).toEqual(['lonely']);
+    });
+
+    test('stops visiting when visitor returns undefined', () => {
+      const tree: TreeNode = {
+        id: 'root',
+        value: 1,
+        children: [
+          { id: 'child1', value: 2 },
+          { id: 'child2', value: 3, children: [{ id: 'grandchild', value: 4 }] }
+        ]
+      };
+
+      const visited: string[] = [];
+
+      Objects.visit(tree, (node, level) => {
+        visited.push(node.id);
+        // Stop at level 1
+        if (level >= 1) {
+          return undefined;
+        }
+        return node.children;
+      });
+
+      expect(visited).toEqual(['root', 'child1', 'child2']);
+    });
+
+    test('handles circular references without infinite loop', () => {
+      const parent: TreeNode = { id: 'parent', value: 1 };
+      const child: TreeNode = { id: 'child', value: 2, parent: parent };
+      parent.children = [child];
+
+      const visited: string[] = [];
+
+      Objects.visit(parent, (node, level) => {
+        visited.push(node.id);
+
+        const children: TreeNode[] = [];
+        if (node.children) children.push(...node.children);
+        if (node.parent) children.push(node.parent);
+        
+        return children.length > 0 ? children : undefined;
+      });
+
+      // The visit function should handle circular references internally
+      // and prevent infinite loops
+      expect(visited.length).toBeGreaterThan(0);
+      expect(visited.length).toBeLessThan(100); // Should not loop infinitely
+      expect(visited).toContain('parent');
+      expect(visited).toContain('child');
+    });
+
+    test('handles complex circular references', () => {
+      const nodeA: TreeNode = { id: 'A', value: 1 };
+      const nodeB: TreeNode = { id: 'B', value: 2 };
+      const nodeC: TreeNode = { id: 'C', value: 3 };
+
+      // Create circular reference: A -> B -> C -> A
+      nodeA.children = [nodeB];
+      nodeB.children = [nodeC];
+      nodeC.children = [nodeA];
+
+      const visited: string[] = [];
+
+      Objects.visit(nodeA, (node, level) => {
+        visited.push(node.id);
+        return node.children;
+      });
+
+      // The visit function should handle circular references internally
+      expect(visited.length).toBeGreaterThan(0);
+      expect(visited.length).toBeLessThan(100); // Should not loop infinitely
+      expect(visited).toContain('A');
+      expect(visited).toContain('B');
+      expect(visited).toContain('C');
+    });
+
+    test('visits with different return patterns', () => {
+      const tree: TreeNode = {
+        id: 'root',
+        value: 1,
+        children: [
+          { id: 'skip', value: 2, children: [{ id: 'skipped', value: 999 }] },
+          { id: 'include', value: 3, children: [{ id: 'included', value: 4 }] }
+        ]
+      };
+
+      const visited: string[] = [];
+
+      Objects.visit(tree, (node, level) => {
+        visited.push(node.id);
+        
+        // Skip children of 'skip' node
+        if (node.id === 'skip') {
+          return undefined;
+        }
+        
+        return node.children;
+      });
+
+      expect(visited).toEqual(['root', 'skip', 'include', 'included']);
+      expect(visited).not.toContain('skipped');
+    });
+
+    test('handles deep nesting levels', () => {
+      // Create a deep tree: root -> level1 -> level2 -> ... -> level10
+      let current: TreeNode = { id: 'level10', value: 10 };
+      
+      for (let i = 9; i >= 0; i--) {
+        const parent: TreeNode = { id: `level${i}`, value: i, children: [current] };
+        current = parent;
+      }
+
+      const visited: string[] = [];
+      const levels: number[] = [];
+
+      Objects.visit(current, (node, level) => {
+        visited.push(node.id);
+        levels.push(level);
+        return node.children;
+      });
+
+      expect(visited).toHaveLength(11);
+      expect(visited[0]).toBe('level0');
+      expect(visited[10]).toBe('level10');
+      expect(levels).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    });
+
+    test('visitor can modify visited object', () => {
+      const tree: TreeNode = {
+        id: 'root',
+        value: 1,
+        children: [
+          { id: 'child', value: 2 }
+        ]
+      };
+
+      const visited: number[] = [];
+
+      Objects.visit(tree, (node, level) => {
+        visited.push(node.value);
+        node.value *= 2; // Modify the node
+        return node.children;
+      });
+
+      expect(visited).toEqual([1, 2]);
+      expect(tree.value).toBe(2);
+      expect(tree.children![0].value).toBe(4);
+    });
+
+    test('handles null and undefined children arrays', () => {
+      const tree: TreeNode = {
+        id: 'root',
+        value: 1,
+        children: [
+          { id: 'child1', value: 2, children: undefined },
+          { id: 'child2', value: 3, children: [] },
+          { id: 'child3', value: 4 } // no children property
+        ]
+      };
+
+      const visited: string[] = [];
+
+      Objects.visit(tree, (node, level) => {
+        visited.push(node.id);
+        return node.children?.length ? node.children : undefined;
+      });
+
+      expect(visited).toEqual(['root', 'child1', 'child2', 'child3']);
+    });
+  });
+
   describe('deepFreeze', () => {
     test('should freeze primitive values', () => {
       expect(Objects.deepFreeze(42)).toBe(42);
@@ -350,12 +562,13 @@ describe('Objects', () => {
     });
 
     test('should handle already frozen objects', () => {
-      const obj = { value: 123 };
+      const obj = { value: 123, nested: { prop: 'test' } };
       Object.freeze(obj);
 
       const result = Objects.deepFreeze(obj);
       expect(result).toBe(obj);
       expect(Object.isFrozen(result)).toBe(true);
+      expect(Object.isFrozen(result.nested)).toBe(true);
     });
 
     test('should return correct TypeScript type', () => {

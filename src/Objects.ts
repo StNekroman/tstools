@@ -218,12 +218,19 @@ export namespace Objects {
   function visitLevel<OBJ extends {}>(
     obj: OBJ,
     visitor: (obj: OBJ, level: number) => OBJ[] | void,
+    seen: Set<OBJ> = new Set(),
     level: number = 0
   ): void {
+    if (seen.has(obj)) {
+      // already seen this object, skip to avoid infinite loop
+      return;
+    }
+
     const children = visitor(obj, level);
+    seen.add(obj);
     if (children) {
       for (const child of children) {
-        visitLevel(child, visitor, level + 1);
+        visitLevel(child, visitor, seen, level + 1);
       }
     }
   }
@@ -256,14 +263,22 @@ export namespace Objects {
    * @returns The frozen object.
    */
   export function deepFreeze<T>(obj: T): Types.DeepReadonly<T> {
-    if (typeof obj === 'object' && obj != null && !Object.isFrozen(obj)) {
-      Object.freeze(obj);
-      if (Array.isArray(obj)) {
-        obj.forEach((prop) => deepFreeze(prop));
-      } else {
-        Object.values(obj).forEach((prop) => deepFreeze(prop));
+    visit(obj as any, (currentObj) => {
+      if (!currentObj) {
+        return;
       }
-    }
+
+      Object.freeze(currentObj);
+
+      if (Array.isArray(currentObj)) {
+        return currentObj;
+      }
+      if (typeof currentObj === 'object' && currentObj !== null) {
+        return Object.values(currentObj);
+      }
+      return undefined;
+    });
+
     return obj as Types.DeepReadonly<T>;
   }
 }
