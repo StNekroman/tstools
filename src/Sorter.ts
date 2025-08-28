@@ -109,10 +109,8 @@ export class Sorter<T> {
       result = Sorter.COMPARATORS.boolean(avalue, bvalue);
     } else if (avalue instanceof Date && bvalue instanceof Date) {
       result = Sorter.COMPARATORS.Date(avalue, bvalue);
-    } else if (!Objects.isNotNullOrUndefined && !Objects.isNotNullOrUndefined(bvalue)) {
-      result = nullCheck;
     } else {
-      throw new Error('Not supported combination of types');
+      result = nullCheck;
     }
 
     if (this._inverse) {
