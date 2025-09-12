@@ -263,7 +263,7 @@ export namespace Objects {
    * @returns The frozen object.
    */
   export function deepFreeze<T>(obj: T): Types.DeepReadonly<T> {
-    visit(obj as any, (currentObj) => {
+    visit(obj as object, (currentObj) => {
       if (!currentObj) {
         return;
       }
