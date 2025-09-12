@@ -3,26 +3,30 @@ import { Functions } from './Functions';
 import { Objects } from './Objects';
 import { Types } from './Types';
 
-
 export function GroupBy<T extends {}>(data: T[]) {
   return {
-    toObject<KEY extends keyof T & PropertyKey, TVAL extends PropertyKey & T[KEY] = T[KEY] & PropertyKey>(field: KEY) : Record<TVAL, T[]> {
-      return new GroupBy.ObjectGroupByBuilder(Functions.extractor<T>(field) as Functions.MapFunction<T, TVAL>).build().consumeAll(data).result as Record<TVAL, T[]>;
+    toObject<KEY extends keyof T & PropertyKey, TVAL extends PropertyKey & T[KEY] = T[KEY] & PropertyKey>(
+      field: KEY
+    ): Readonly<Record<TVAL, T[]>> {
+      return new GroupBy.ObjectGroupByBuilder(Functions.extractor<T>(field) as Functions.MapFunction<T, TVAL>)
+        .build()
+        .consumeAll(data).result;
     },
-    toMap<KEY extends keyof T, TVAL extends T[KEY] = T[KEY]>(field: KEY) : Map<TVAL, T[]>{
-      return (new GroupBy.MapGroupByBuilder(Functions.extractor<T>(field) as Functions.MapFunction<T, TVAL>).build().consumeAll(data).result) as Map<TVAL, unknown> as Map<TVAL, T[]>;
-    }
+    toMap<KEY extends keyof T, TVAL extends T[KEY] = T[KEY]>(field: KEY): ReadonlyMap<TVAL, T[]> {
+      return new GroupBy.MapGroupByBuilder(Functions.extractor<T>(field) as Functions.MapFunction<T, TVAL>)
+        .build()
+        .consumeAll(data).result;
+    },
   };
 }
 
 export namespace GroupBy {
-
   export abstract class Accumulator<T, R> {
-    public abstract consume(data : T) : this;
-    public abstract get result() : Types.DeepReadonly<R>;
-    public abstract clear() : void;
+    public abstract consume(data: T): this;
+    public abstract get result(): R;
+    public abstract clear(): void;
 
-    public consumeAll(datas : T[]) : this {
+    public consumeAll(datas: T[]): this {
       for (const data of datas) {
         this.consume(data);
       }
@@ -32,65 +36,83 @@ export namespace GroupBy {
 
   export function toObject<T extends {}>() {
     return {
-      byExtractor<KEY extends PropertyKey>(extractor : Functions.MapFunction<T, KEY>) : ObjectGroupByBuilder<T, KEY> {
+      byExtractor<KEY extends PropertyKey>(extractor: Functions.MapFunction<T, KEY>): ObjectGroupByBuilder<T, KEY> {
         return new ObjectGroupByBuilder(extractor);
       },
-      byField<KEY extends keyof T, TVAL extends PropertyKey & T[KEY] = T[KEY] & PropertyKey>(field : KEY) : ObjectGroupByBuilder<T, TVAL> {
+      byField<KEY extends keyof T, TVAL extends PropertyKey & T[KEY] = T[KEY] & PropertyKey>(
+        field: KEY
+      ): ObjectGroupByBuilder<T, TVAL> {
         return new ObjectGroupByBuilder(Functions.extractor<T>(field) as Functions.MapFunction<T, TVAL>);
-      }
+      },
     };
   }
 
   export function toMap<T extends {}>() {
     return {
-      byExtractor<KEY>(extractor : Functions.MapFunction<T, KEY>) : MapGroupByBuilder<T, KEY> {
+      byExtractor<KEY>(extractor: Functions.MapFunction<T, KEY>): MapGroupByBuilder<T, KEY> {
         return new MapGroupByBuilder(extractor);
       },
-      byField<KEY extends keyof T, TVAL extends PropertyKey & T[KEY] = T[KEY] & PropertyKey>(field : KEY) : MapGroupByBuilder<T, TVAL> {
+      byField<KEY extends keyof T, TVAL extends PropertyKey & T[KEY] = T[KEY] & PropertyKey>(
+        field: KEY
+      ): MapGroupByBuilder<T, TVAL> {
         return new MapGroupByBuilder(Functions.extractor<T>(field) as Functions.MapFunction<T, TVAL>);
-      }
+      },
     };
   }
 
   export class ObjectGroupByBuilder<T extends {}, KEY extends PropertyKey> {
+    constructor(private readonly keyExtractor: Functions.MapFunction<T, KEY>) {}
 
-    constructor(private readonly keyExtractor : Functions.MapFunction<T, KEY>) {}
-
-    public valueExtractor<VALUE>(extractor : Functions.MapFunction<T, VALUE>) : ObjectGroupByBuilderWithValue<T, KEY, VALUE> {
+    public valueExtractor<VALUE>(
+      extractor: Functions.MapFunction<T, VALUE>
+    ): ObjectGroupByBuilderWithValue<T, KEY, VALUE> {
       return new ObjectGroupByBuilderWithValue(this.keyExtractor, extractor);
     }
 
-    public build<GROUP>(groupAccumulatorsFactory : Functions.Provider<Accumulator<T, GROUP>>) : ObjectGroupByAccumulator<T, KEY, T, GROUP>;
-    public build() : ObjectGroupByAccumulator<T, KEY, T, T[]>;
-    build<GROUP = T[]>(groupAccumulatorsFactory ?: Functions.Provider<Accumulator<T, GROUP>>) : ObjectGroupByAccumulator<T, KEY, T, GROUP | T[]> {
-      return new ObjectGroupByBuilderWithValue(this.keyExtractor, i => i).build(groupAccumulatorsFactory!);
+    public build<GROUP>(
+      groupAccumulatorsFactory: Functions.Provider<Accumulator<T, GROUP>>
+    ): ObjectGroupByAccumulator<T, KEY, T, GROUP>;
+    public build(): ObjectGroupByAccumulator<T, KEY, T, T[]>;
+    build<GROUP = T[]>(
+      groupAccumulatorsFactory?: Functions.Provider<Accumulator<T, GROUP>>
+    ): ObjectGroupByAccumulator<T, KEY, T, GROUP | T[]> {
+      return new ObjectGroupByBuilderWithValue(this.keyExtractor, (i) => i).build(groupAccumulatorsFactory!);
     }
   }
 
   export class MapGroupByBuilder<T extends {}, KEY> {
+    constructor(private readonly keyExtractor: Functions.MapFunction<T, KEY>) {}
 
-    constructor(private readonly keyExtractor : Functions.MapFunction<T, KEY>) {}
-
-    public valueExtractor<VALUE>(extractor : Functions.MapFunction<T, VALUE>) : MapGroupByBuilderWithValue<T, KEY, VALUE> {
+    public valueExtractor<VALUE>(
+      extractor: Functions.MapFunction<T, VALUE>
+    ): MapGroupByBuilderWithValue<T, KEY, VALUE> {
       return new MapGroupByBuilderWithValue(this.keyExtractor, extractor);
     }
 
-    public build<GROUP>(groupAccumulatorsFactory : Functions.Provider<Accumulator<T, GROUP>>) : MapGroupByAccumulator<T, KEY, T, GROUP>;
-    public build() : MapGroupByAccumulator<T, KEY, T, T[]>;
-    build<GROUP = T[]>(groupAccumulatorsFactory ?: Functions.Provider<Accumulator<T, GROUP>>) : MapGroupByAccumulator<T, KEY, T, GROUP | T[]> {
-      return new MapGroupByBuilderWithValue(this.keyExtractor, i => i).build(groupAccumulatorsFactory!);
+    public build<GROUP>(
+      groupAccumulatorsFactory: Functions.Provider<Accumulator<T, GROUP>>
+    ): MapGroupByAccumulator<T, KEY, T, GROUP>;
+    public build(): MapGroupByAccumulator<T, KEY, T, T[]>;
+    build<GROUP = T[]>(
+      groupAccumulatorsFactory?: Functions.Provider<Accumulator<T, GROUP>>
+    ): MapGroupByAccumulator<T, KEY, T, GROUP | T[]> {
+      return new MapGroupByBuilderWithValue(this.keyExtractor, (i) => i).build(groupAccumulatorsFactory!);
     }
   }
 
   class ObjectGroupByBuilderWithValue<T extends {}, KEY extends PropertyKey, VALUE> {
     constructor(
-      private readonly keyExtractor : Functions.MapFunction<T, KEY>,
-      private readonly valueExtractor : Functions.MapFunction<T, VALUE>
+      private readonly keyExtractor: Functions.MapFunction<T, KEY>,
+      private readonly valueExtractor: Functions.MapFunction<T, VALUE>
     ) {}
 
-    public build<GROUP>(groupAccumulatorsFactory : Functions.Provider<Accumulator<VALUE, GROUP>>) : ObjectGroupByAccumulator<T, KEY, VALUE, GROUP>;
-    public build() : ObjectGroupByAccumulator<T, KEY, VALUE, VALUE[]>;
-    build<GROUP = VALUE[]>(groupAccumulatorsFactory ?: Functions.Provider<Accumulator<VALUE, GROUP | VALUE[]>>) : ObjectGroupByAccumulator<T, KEY, VALUE, GROUP | VALUE[]> {
+    public build<GROUP>(
+      groupAccumulatorsFactory: Functions.Provider<Accumulator<VALUE, GROUP>>
+    ): ObjectGroupByAccumulator<T, KEY, VALUE, GROUP>;
+    public build(): ObjectGroupByAccumulator<T, KEY, VALUE, VALUE[]>;
+    build<GROUP = VALUE[]>(
+      groupAccumulatorsFactory?: Functions.Provider<Accumulator<VALUE, Readonly<GROUP | VALUE[]>>>
+    ): ObjectGroupByAccumulator<T, KEY, VALUE, Readonly<GROUP | VALUE[]>> {
       if (!groupAccumulatorsFactory) {
         groupAccumulatorsFactory = () => new ArrayAccumulator<VALUE>();
       }
@@ -100,13 +122,17 @@ export namespace GroupBy {
 
   class MapGroupByBuilderWithValue<T extends {}, KEY, VALUE> {
     constructor(
-      private readonly keyExtractor : Functions.MapFunction<T, KEY>,
-      private readonly valueExtractor : Functions.MapFunction<T, VALUE>
+      private readonly keyExtractor: Functions.MapFunction<T, KEY>,
+      private readonly valueExtractor: Functions.MapFunction<T, VALUE>
     ) {}
 
-    public build<GROUP>(groupAccumulatorsFactory : Functions.Provider<Accumulator<VALUE, GROUP>>) : MapGroupByAccumulator<T, KEY, VALUE, GROUP>;
-    public build() : MapGroupByAccumulator<T, KEY, VALUE, VALUE[]>;
-    build<GROUP = VALUE[]>(groupAccumulatorsFactory ?: Functions.Provider<Accumulator<VALUE, GROUP | VALUE[]>>) : MapGroupByAccumulator<T, KEY, VALUE, GROUP | VALUE[]> {
+    public build<GROUP>(
+      groupAccumulatorsFactory: Functions.Provider<Accumulator<VALUE, GROUP>>
+    ): MapGroupByAccumulator<T, KEY, VALUE, GROUP>;
+    public build(): MapGroupByAccumulator<T, KEY, VALUE, VALUE[]>;
+    build<GROUP = VALUE[]>(
+      groupAccumulatorsFactory?: Functions.Provider<Accumulator<VALUE, Readonly<GROUP | VALUE[]>>>
+    ): MapGroupByAccumulator<T, KEY, VALUE, Readonly<GROUP | VALUE[]>> {
       if (!groupAccumulatorsFactory) {
         groupAccumulatorsFactory = () => new ArrayAccumulator<VALUE>();
       }
@@ -114,19 +140,23 @@ export namespace GroupBy {
     }
   }
 
-  abstract class GroupByAccumulator<T extends {}, KEY, VALUE, GROUP, RESULT_CONTAINER> extends Accumulator<T, RESULT_CONTAINER> {
-
-    private readonly groupAccumulators : Map<KEY, Accumulator<VALUE, GROUP>> = new Map();
+  abstract class GroupByAccumulator<T extends {}, KEY, VALUE, GROUP, RESULT_CONTAINER> extends Accumulator<
+    T,
+    RESULT_CONTAINER
+  > {
+    private readonly groupAccumulators: Map<KEY, Accumulator<VALUE, GROUP>> = new Map();
 
     constructor(
-      private readonly keyExtractor : Functions.MapFunction<T, KEY>,
-      private readonly valueExtractor : Functions.MapFunction<T, VALUE>,
-      private readonly groupAccumulatorsFactory : Functions.Provider<Accumulator<VALUE, GROUP>>
-    ) {super();}
+      private readonly keyExtractor: Functions.MapFunction<T, KEY>,
+      private readonly valueExtractor: Functions.MapFunction<T, VALUE>,
+      private readonly groupAccumulatorsFactory: Functions.Provider<Accumulator<VALUE, GROUP>>
+    ) {
+      super();
+    }
 
-    public override consume(data: T) : this {
+    public override consume(data: T): this {
       const key = this.keyExtractor(data);
-      const value : VALUE = this.valueExtractor(data);
+      const value: VALUE = this.valueExtractor(data);
 
       let groupAccumulator = this.groupAccumulators.get(key);
       if (groupAccumulator === undefined) {
@@ -143,22 +173,27 @@ export namespace GroupBy {
       this.groupAccumulators.clear();
     }
 
-    public abstract set(key: KEY, group: GROUP | Types.DeepReadonly<GROUP>) : void;
+    public abstract set(key: KEY, group: GROUP | Types.DeepReadonly<GROUP>): void;
 
     // returns object, containing grouped result, no cloning for performance reasons, use returned refs carefully
-    public abstract get result() : Types.DeepReadonly<RESULT_CONTAINER>;
+    public abstract get result(): Readonly<RESULT_CONTAINER>;
   }
 
-  export class ObjectGroupByAccumulator<T extends {}, KEY extends PropertyKey, VALUE, GROUP> extends GroupByAccumulator<T, KEY, VALUE, GROUP, Record<KEY, GROUP>> {
+  export class ObjectGroupByAccumulator<T extends {}, KEY extends PropertyKey, VALUE, GROUP> extends GroupByAccumulator<
+    T,
+    KEY,
+    VALUE,
+    GROUP,
+    Record<KEY, GROUP>
+  > {
+    readonly #result: Record<KEY, GROUP> = Object.create(null);
 
-    readonly #result : Record<KEY, GROUP> = Object.create(null);
-
-    public override set(key: KEY, group: GROUP) : void {
+    public override set(key: KEY, group: GROUP): void {
       this.#result[key] = group;
     }
 
-    public override get result() : Types.DeepReadonly<Record<KEY, GROUP>> {
-      return this.#result as Types.DeepReadonly<Record<KEY, GROUP>>;
+    public override get result(): Readonly<Record<KEY, GROUP>> {
+      return this.#result;
     }
 
     public override clear(): void {
@@ -169,16 +204,21 @@ export namespace GroupBy {
     }
   }
 
-  export class MapGroupByAccumulator<T extends {}, KEY, VALUE, GROUP> extends GroupByAccumulator<T, KEY, VALUE, GROUP, Map<KEY, GROUP>> {
+  export class MapGroupByAccumulator<T extends {}, KEY, VALUE, GROUP> extends GroupByAccumulator<
+    T,
+    KEY,
+    VALUE,
+    GROUP,
+    ReadonlyMap<KEY, GROUP>
+  > {
+    readonly #result: Map<KEY, GROUP> = new Map();
 
-    readonly #result : Map<KEY, GROUP> = new Map();
-
-    public override set(key: KEY, group: GROUP) : void {
+    public override set(key: KEY, group: GROUP): void {
       this.#result.set(key, group);
     }
 
-    public override get result() : Types.DeepReadonly<Map<KEY, GROUP>> {
-      return this.#result as Types.DeepReadonly<Map<KEY, GROUP>>;
+    public override get result(): ReadonlyMap<KEY, GROUP> {
+      return this.#result;
     }
 
     public override clear(): void {
@@ -187,8 +227,8 @@ export namespace GroupBy {
     }
   }
 
-  export class ArrayAccumulator<T> extends Accumulator<T, T[]> {
-    readonly #result : T[] = [];
+  export class ArrayAccumulator<T> extends Accumulator<T, Readonly<T[]>> {
+    readonly #result: T[] = [];
 
     public override consume(data: T): this {
       this.#result.push(data);
@@ -200,8 +240,8 @@ export namespace GroupBy {
       return this;
     }
 
-    public override get result() : Types.DeepReadonly<T[]> {
-      return this.#result as Types.DeepReadonly<T[]>;
+    public override get result(): Readonly<T[]> {
+      return this.#result;
     }
 
     public override clear(): void {
