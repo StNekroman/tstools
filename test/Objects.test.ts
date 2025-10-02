@@ -9,6 +9,7 @@ describe('Objects', () => {
     expect(Objects.isObject(null)).toBe(false);
     expect(Objects.isObject(NaN)).toBe(false);
     expect(Objects.isObject('1')).toBe(false);
+    expect(Objects.isObject([])).toBe(false);
     expect(Objects.isObject({})).toBe(true);
     expect(Objects.isObject(new Date())).toBe(true);
   });
@@ -298,8 +299,8 @@ describe('Objects', () => {
         value: 1,
         children: [
           { id: 'child1', value: 2 },
-          { id: 'child2', value: 3, children: [{ id: 'grandchild', value: 4 }] }
-        ]
+          { id: 'child2', value: 3, children: [{ id: 'grandchild', value: 4 }] },
+        ],
       };
 
       const visited: string[] = [];
@@ -333,8 +334,8 @@ describe('Objects', () => {
         value: 1,
         children: [
           { id: 'child1', value: 2 },
-          { id: 'child2', value: 3, children: [{ id: 'grandchild', value: 4 }] }
-        ]
+          { id: 'child2', value: 3, children: [{ id: 'grandchild', value: 4 }] },
+        ],
       };
 
       const visited: string[] = [];
@@ -364,7 +365,7 @@ describe('Objects', () => {
         const children: TreeNode[] = [];
         if (node.children) children.push(...node.children);
         if (node.parent) children.push(node.parent);
-        
+
         return children.length > 0 ? children : undefined;
       });
 
@@ -407,20 +408,20 @@ describe('Objects', () => {
         value: 1,
         children: [
           { id: 'skip', value: 2, children: [{ id: 'skipped', value: 999 }] },
-          { id: 'include', value: 3, children: [{ id: 'included', value: 4 }] }
-        ]
+          { id: 'include', value: 3, children: [{ id: 'included', value: 4 }] },
+        ],
       };
 
       const visited: string[] = [];
 
       Objects.visit(tree, (node, level) => {
         visited.push(node.id);
-        
+
         // Skip children of 'skip' node
         if (node.id === 'skip') {
           return undefined;
         }
-        
+
         return node.children;
       });
 
@@ -431,7 +432,7 @@ describe('Objects', () => {
     test('handles deep nesting levels', () => {
       // Create a deep tree: root -> level1 -> level2 -> ... -> level10
       let current: TreeNode = { id: 'level10', value: 10 };
-      
+
       for (let i = 9; i >= 0; i--) {
         const parent: TreeNode = { id: `level${i}`, value: i, children: [current] };
         current = parent;
@@ -456,9 +457,7 @@ describe('Objects', () => {
       const tree: TreeNode = {
         id: 'root',
         value: 1,
-        children: [
-          { id: 'child', value: 2 }
-        ]
+        children: [{ id: 'child', value: 2 }],
       };
 
       const visited: number[] = [];
@@ -481,8 +480,8 @@ describe('Objects', () => {
         children: [
           { id: 'child1', value: 2, children: undefined },
           { id: 'child2', value: 3, children: [] },
-          { id: 'child3', value: 4 } // no children property
-        ]
+          { id: 'child3', value: 4 }, // no children property
+        ],
       };
 
       const visited: string[] = [];

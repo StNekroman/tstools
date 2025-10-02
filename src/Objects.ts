@@ -10,7 +10,7 @@ export namespace Objects {
   }
 
   export function isObject<T = {}>(arg: unknown | T): arg is Record<keyof T, T[keyof T]> {
-    return typeof arg === 'object' && arg !== null;
+    return typeof arg === 'object' && arg !== null && !Array.isArray(arg);
   }
 
   export function isFunction(arg: unknown): arg is Function {
@@ -41,7 +41,7 @@ export namespace Objects {
       return true;
     }
 
-    if (Objects.isObject(arg) || Objects.isFunction(arg)) {
+    if (Objects.isObject(arg) || Objects.isFunction(arg) || Array.isArray(arg)) {
       return false;
     } else {
       return true;
