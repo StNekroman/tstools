@@ -77,25 +77,69 @@ export namespace Objects {
     return false;
   }
 
-  // port of this https://medium.com/@stheodorejohn/javascript-object-deep-equality-comparison-in-javascript-7aa227e889d4
   export function equals<T1, T2>(obj1?: T1, obj2?: T2): boolean {
     if ((obj1 as unknown) === (obj2 as unknown)) {
       return true;
-    } else if (obj1 && obj2 && Objects.isObject(obj1) && Objects.isObject(obj2)) {
-      const keys1: string[] = Object.keys(obj1);
-      const keys2: Set<string> = new Set(Object.keys(obj2));
+    }
 
+    if (!obj1 || !obj2) {
+      return false;
+    }
+
+    if (typeof obj1 !== typeof obj2) {
+      return false;
+    }
+
+    if (Array.isArray(obj1) && Array.isArray(obj2)) {
+      if (obj1.length !== obj2.length) {
+        return false;
+      }
+      for (let i = 0; i < obj1.length; i++) {
+        if (!Objects.equals(obj1[i], obj2[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (Objects.isObject(obj1) && Objects.isObject(obj2)) {
+      const proto1 = Object.getPrototypeOf(obj1);
+      const proto2 = Object.getPrototypeOf(obj2);
+      if (proto1 !== proto2) {
+        return false;
+      }
+
+      const keys1: string[] = Object.keys(obj1);
+      const keys2: string[] = Object.keys(obj2);
+      if (keys1.length !== keys2.length) {
+        return false;
+      }
+
+      if (proto1 === Date.prototype && proto2 === Date.prototype && obj1 instanceof Date && obj2 instanceof Date) {
+        return obj1.getTime() === obj2.getTime();
+      }
+
+      if (
+        proto1 === RegExp.prototype &&
+        proto2 === RegExp.prototype &&
+        obj1 instanceof RegExp &&
+        obj2 instanceof RegExp
+      ) {
+        return obj1.source === obj2.source && obj1.flags === obj2.flags;
+      }
+
+      const keys2set: Set<string> = new Set(keys2);
       for (const key of keys1) {
         if (!Objects.equals(obj1[key as keyof T1], obj2[key as keyof T2])) {
           return false;
         }
-        keys2.delete(key);
+        keys2set.delete(key);
       }
 
-      return keys2.size === 0;
-    } else {
-      return false;
+      return keys2set.size === 0;
     }
+
+    return false;
   }
 
   /**

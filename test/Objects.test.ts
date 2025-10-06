@@ -127,6 +127,32 @@ describe('Objects', () => {
     expect(Objects.equals({ a: 1, b: { c: 1 } }, { a: 1, b: { c: 2 } })).toBe(false);
   });
 
+  test('equals with nulls', () => {
+    expect(Objects.equals(undefined, undefined)).toBe(true);
+    expect(Objects.equals(null, null)).toBe(true);
+    expect(Objects.equals(null, undefined)).toBe(false);
+    expect(Objects.equals(null, [])).toBe(false);
+    expect(Objects.equals(undefined, [])).toBe(false);
+  });
+
+  test('equals with Date', () => {
+    expect(Objects.equals({ a: new Date(1) }, { a: new Date(1) })).toBe(true);
+    expect(Objects.equals({ a: new Date(1) }, { a: new Date(2) })).toBe(false);
+  });
+
+  test('equals with RegExp', () => {
+    expect(Objects.equals({ a: new RegExp('test', 'i') }, { a: new RegExp('test', 'i') })).toBe(true);
+    expect(Objects.equals({ a: new RegExp('test', 'i') }, { a: new RegExp('tett', 'i') })).toBe(false);
+    expect(Objects.equals({ a: new RegExp('test', 'i') }, { a: new RegExp('test', 'g') })).toBe(false);
+  });
+
+  test('equals with Arrays', () => {
+    expect(Objects.equals({ a: [1, 2, 3] }, { a: [1, 2, 3] })).toBe(true);
+    expect(Objects.equals({ a: [1, 2, 3] }, { a: [3, 1, 2] })).toBe(false); // order matters
+    expect(Objects.equals({ a: [1, 2, 3] }, { a: [3, 1] })).toBe(false);
+    expect(Objects.equals({ a: [1, 2, 3] }, { a: [3, 4, 2] })).toBe(false);
+  });
+
   test('deepCopy', () => {
     const src = {
       a: 1,
