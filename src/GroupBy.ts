@@ -176,7 +176,7 @@ export namespace GroupBy {
     public abstract set(key: KEY, group: GROUP | Types.DeepReadonly<GROUP>): void;
 
     // returns object, containing grouped result, no cloning for performance reasons, use returned refs carefully
-    public abstract get result(): Readonly<RESULT_CONTAINER>;
+    public abstract override get result(): Readonly<RESULT_CONTAINER>;
   }
 
   export class ObjectGroupByAccumulator<T extends {}, KEY extends PropertyKey, VALUE, GROUP> extends GroupByAccumulator<

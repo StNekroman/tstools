@@ -24,7 +24,7 @@ export abstract class ThrottledCache<T, ARGS extends unknown[] = [string], KEY =
     }, timeout);
   }
 
-  public get(...args: ARGS): Promise<T> {
+  public override get(...args: ARGS): Promise<T> {
     if (super.has(...args)) {
       return super.get(...args);
     }
