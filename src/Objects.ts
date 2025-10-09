@@ -309,7 +309,7 @@ export namespace Objects {
   export function deepFreeze<T>(obj: T): Types.DeepReadonly<T> {
     visit(obj as object, (currentObj) => {
       if (!currentObj) {
-        return;
+        return void 0;
       }
 
       Object.freeze(currentObj);
@@ -320,7 +320,7 @@ export namespace Objects {
       if (typeof currentObj === 'object' && currentObj !== null) {
         return Object.values(currentObj);
       }
-      return undefined;
+      return void 0;
     });
 
     return obj as Types.DeepReadonly<T>;
