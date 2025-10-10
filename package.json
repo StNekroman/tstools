@@ -1,9 +1,8 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
-  "type": "module",
   "main": "./dist/src/index.js",
   "types": "./src/index.ts",
   "author": {
