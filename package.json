@@ -1,8 +1,9 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
+  "type": "module",
   "main": "./dist/src/index.js",
   "types": "./src/index.ts",
   "author": {
@@ -22,7 +23,11 @@
     "tstools"
   ],
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "clean": "rimraf dist",
