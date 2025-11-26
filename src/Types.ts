@@ -19,6 +19,10 @@ export namespace Types {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
     export type LastTypeFromTuple<T extends any[]> = T extends [...infer _, infer L] ? L : never;
 
+    export type DeepPartial<T> = {
+      [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+    };
+
     // from https://github.com/iTwin/appui/blob/094a9816957c69b1ee521e4564eaa2262f33df63/ui/appui-react/src/appui-react/redux/redux-ts.ts#L24
     export type DeepReadonly<T> =
         T extends Primitive | Function ? T :
