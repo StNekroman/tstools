@@ -37,6 +37,10 @@ export namespace Types {
     // from https://stackoverflow.com/a/66144780
     export type KeysWithValsOfType<T, V> = keyof { [ P in keyof T as T[P] extends V ? P : never ] : P };
 
+    export type KeyForValue<E extends Record<PropertyKey, unknown>, V extends E[keyof E]> = {
+      [K in keyof E]: E[K] extends V ? (V extends E[K] ? K : never) : never;
+    }[keyof E];
+
     export type FunctionPropertyNames<T> = Types.KeysWithValsOfType<T, (...args: unknown[]) => unknown>;
 
     /**

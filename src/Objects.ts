@@ -142,6 +142,10 @@ export namespace Objects {
     return false;
   }
 
+  export function keys<T extends Record<PropertyKey, unknown>>(obj: T): (keyof T)[] {
+    return Object.keys(obj);
+  }
+
   /**
    * Not an analog of structuredClone (which is more low-level copying for data serialization).
    * when @param transferNotCopyable set to `false` - it will perform like structuredClone, but not all fields types are covered and it won't create copies of strings - they will go by reference. When unable to clone - expection raised.
@@ -324,5 +328,13 @@ export namespace Objects {
     });
 
     return obj as Types.DeepReadonly<T>;
+  }
+
+  export function getKeyByValue<E extends Record<PropertyKey, unknown>, V extends E[keyof E]>(
+    enumObj: E,
+    enumValue: V
+  ): Types.KeyForValue<E, V> {
+    const keys = Objects.keys(enumObj).filter((k) => enumObj[k] === enumValue) as [Types.KeyForValue<E, V>] | [];
+    return keys.length > 0 ? keys[0]! : undefined!;
   }
 }
