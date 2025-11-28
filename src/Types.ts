@@ -19,6 +19,17 @@ export namespace Types {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
     export type LastTypeFromTuple<T extends any[]> = T extends [...infer _, infer L] ? L : never;
 
+    /**
+     * Converts array type to union of its elements, or returns the type as-is if not an array
+     * @example
+     * ArrayToUnion<string> => string
+     * ArrayToUnion<string[]> => string
+     * ArrayToUnion<'a'> => 'a'
+     * ArrayToUnion<['a', 'b']> => 'a' | 'b'
+     * ArrayToUnion<readonly ['a', 'b']> => 'a' | 'b'
+     */
+    export type ArrayToUnion<T> = T extends readonly unknown[] ? T[number] : T;
+
     export type DeepPartial<T> = {
       [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
     };
