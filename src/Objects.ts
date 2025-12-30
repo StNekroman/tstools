@@ -142,8 +142,12 @@ export namespace Objects {
     return false;
   }
 
-  export function keys<T extends Record<PropertyKey, unknown>>(obj: T): (keyof T)[] {
+  export function keys<T extends Record<PropertyKey, unknown>>(obj: T): ReadonlyArray<keyof T> {
     return Object.keys(obj);
+  }
+
+  export function assign<T extends {}>(target: T, source: Partial<T>): T {
+    return Object.assign(target, source);
   }
 
   /**

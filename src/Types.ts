@@ -6,6 +6,7 @@ export namespace Types {
     export type WithRequired<T, PROPS extends keyof T> = T & Required<Pick<T, PROPS>>;
     export type WithOptional<T, PROPS extends keyof T> = Omit<T, PROPS> & Partial<Pick<T, PROPS>>;
     export type NonFunction<T> = T extends Function ? never : T;
+    export type IF<T, BASE, RT = T, RF = never> = T extends BASE ? RT : RF;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export interface Newable<R = {}, ARGS extends any[] = any[]> { new (...args: ARGS) : R; }
