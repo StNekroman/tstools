@@ -46,6 +46,8 @@ export namespace Types {
     export type DeepReadonlySet<T> = ReadonlySet<DeepReadonly<T>>;
     export type DeepReadonlyObject<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> };
 
+    export type ReadonlyDate = Omit<Date, `set${string}`>;
+
     // from https://stackoverflow.com/a/66144780
     export type KeysWithValsOfType<T, V> = keyof { [ P in keyof T as T[P] extends V ? P : never ] : P };
 
