@@ -165,6 +165,13 @@ describe('Result', () => {
       expect(Failure.isFailureData(failureData)).toBeTruthy();
       expect(Failure.isFailureData(successData)).toBeFalsy();
     });
+
+    test('Success.isSuccessData over Result instances', () => {
+      expect(Success.isSuccessData(Result.success('test'))).toBeTruthy();
+      expect(Failure.isFailureData(Result.failure('error'))).toBeTruthy();
+      expect(Failure.isFailureData(Result.success('test'))).toBeFalsy();
+      expect(Success.isSuccessData(Result.failure('error'))).toBeFalsy();
+    });
   });
 
   describe('Result.groupResults', () => {

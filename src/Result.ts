@@ -7,12 +7,14 @@ export type FailureData<E> = { error: E };
 
 export namespace Success {
   export function isSuccessData<T>(result: SuccessData<T> | FailureData<unknown>): result is SuccessData<T> {
-    return (result as FailureData<unknown>).error === undefined && 'data' in (result as SuccessData<T>);
+    return result instanceof Result
+      ? result.isSuccess()
+      : (result as FailureData<unknown>).error === undefined && 'data' in (result as SuccessData<T>);
   }
 }
 export namespace Failure {
   export function isFailureData<E>(result: SuccessData<unknown> | FailureData<E>): result is FailureData<E> {
-    return (result as FailureData<E>).error !== undefined;
+    return result instanceof Result ? result.isFailure() : (result as FailureData<E>).error !== undefined;
   }
 }
 
