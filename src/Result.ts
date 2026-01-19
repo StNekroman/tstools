@@ -4,7 +4,7 @@ export type Success<T> = Result<T, never>;
 export type Failure<E> = Result<never, E>;
 export type SuccessData<T> = { data: T };
 export type FailureData<E> = { error: E };
-export type ResultData<T, E> = SuccessData<T> | FailureData<E>;
+export type ResultData<T, E = unknown> = SuccessData<T> | FailureData<E>;
 
 export namespace Success {
   export function isSuccessData<T>(result: SuccessData<T> | FailureData<unknown>): result is SuccessData<T> {
@@ -19,7 +19,7 @@ export namespace Failure {
   }
 }
 
-export class Result<T, E> implements SuccessData<T>, FailureData<E> {
+export class Result<T, E = unknown> implements SuccessData<T>, FailureData<E> {
   private constructor(data: T, error: never);
   private constructor(data: never, error: E);
   private constructor(
