@@ -4,6 +4,7 @@ export type Success<T> = Result<T, never>;
 export type Failure<E> = Result<never, E>;
 export type SuccessData<T> = { data: T };
 export type FailureData<E> = { error: E };
+export type ResultData<T, E> = SuccessData<T> | FailureData<E>;
 
 export namespace Success {
   export function isSuccessData<T>(result: SuccessData<T> | FailureData<unknown>): result is SuccessData<T> {
@@ -21,7 +22,10 @@ export namespace Failure {
 export class Result<T, E> implements SuccessData<T>, FailureData<E> {
   private constructor(data: T, error: never);
   private constructor(data: never, error: E);
-  private constructor(public readonly _data: T, public readonly _error: E) {}
+  private constructor(
+    public readonly _data: T,
+    public readonly _error: E,
+  ) {}
 
   public static success(): Success<void>;
   public static success<T = void>(data: T): Success<T>;
@@ -85,7 +89,7 @@ export class Result<T, E> implements SuccessData<T>, FailureData<E> {
   }
 
   public static groupResults<T, E>(
-    results: Result<T, E>[]
+    results: Result<T, E>[],
   ): {
     successes: Success<T>[];
     failures: Failure<E>[];
@@ -102,7 +106,7 @@ export class Result<T, E> implements SuccessData<T>, FailureData<E> {
       {
         successes: [] as Success<T>[],
         failures: [] as Failure<E>[],
-      }
+      },
     );
   }
 }
