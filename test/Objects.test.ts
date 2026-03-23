@@ -325,9 +325,32 @@ describe('Objects', () => {
     expect(transformed).toEqual({ a: 2, b: 'TEST' });
   });
 
+  test('transform - empty object', () => {
+    const result = Objects.transform({}, () => ['x', 1]);
+    expect(result).toEqual({});
+  });
+
+  test('transform - remap keys', () => {
+    const obj = { firstName: 'John', lastName: 'Doe' };
+    const result = Objects.transform(obj, (key, value) => [`user_${String(key)}`, value]);
+    expect(result).toEqual({ user_firstName: 'John', user_lastName: 'Doe' });
+  });
+
+  test('transform - all entries filtered out', () => {
+    const obj = { a: 1, b: 2, c: 3 };
+    const result = Objects.transform(obj, () => undefined);
+    expect(result).toEqual({});
+  });
+
+  test('transform - invert key-value', () => {
+    const obj = { a: '1', b: '2', c: '3' };
+    const result = Objects.transform<typeof obj, Record<string, string>>(obj, (key, value) => [value, String(key)]);
+    expect(result).toEqual({ '1': 'a', '2': 'b', '3': 'c' });
+  });
+
   test('difference', () => {
-    const obj1 = { name: 'Gemini', specs: { version: 3, speed: 'fast' }, tags: [1, 2] };
-    const obj2 = { name: 'Gemini', specs: { version: 3, speed: 'ultra' }, tags: [1, 3] };
+    const obj1 = { name: 'John', specs: { version: 3, speed: 'fast' }, tags: [1, 2] };
+    const obj2 = { name: 'John', specs: { version: 3, speed: 'ultra' }, tags: [1, 3] };
 
     const diff = Objects.difference(obj2, obj1);
 
@@ -335,6 +358,29 @@ describe('Objects', () => {
       specs: { speed: 'ultra' },
       tags: [1, 3],
     });
+  });
+
+  test('difference - identical objects', () => {
+    const obj = { a: 1, b: 'hello', c: [1, 2] };
+    expect(Objects.difference(obj, { ...obj, c: [1, 2] })).toEqual({});
+  });
+
+  test('difference - completely different objects', () => {
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = { a: 10, b: 20 };
+    expect(Objects.difference(obj2, obj1)).toEqual({ a: 10, b: 20 });
+  });
+
+  test('difference - deep nested changes', () => {
+    const base = { config: { db: { host: 'localhost', port: 5432 }, cache: { ttl: 60 } } };
+    const changed = { config: { db: { host: 'prod-db', port: 5432 }, cache: { ttl: 60 } } };
+    expect(Objects.difference(changed, base)).toEqual({ config: { db: { host: 'prod-db' } } });
+  });
+
+  test('difference - primitive value type change', () => {
+    const obj1 = { flag: false as boolean | string };
+    const obj2 = { flag: 'yes' as boolean | string };
+    expect(Objects.difference(obj2, obj1)).toEqual({ flag: 'yes' });
   });
 
   describe('visit function', () => {
