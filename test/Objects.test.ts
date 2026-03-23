@@ -218,7 +218,7 @@ describe('Objects', () => {
     let changed = Objects.extend(
       dst,
       { a: 1 },
-      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] }
+      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] },
     );
     expect(changed).toBeFalsy();
     expect(dst).toStrictEqual({ a: 1 });
@@ -226,7 +226,7 @@ describe('Objects', () => {
     changed = Objects.extend(
       dst,
       { a: 2 },
-      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] }
+      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] },
     );
     expect(changed).toBeTruthy();
     expect(dst).toStrictEqual({ a: 2 });
@@ -235,7 +235,7 @@ describe('Objects', () => {
     changed = Objects.extend(
       dst,
       { b: 2 },
-      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] }
+      { canOverwrite: (dst: any, src: any, key: any) => dst[key as unknown as keyof typeof dst] !== src[key] },
     );
     expect(changed).toBeTruthy();
     expect(dst).toStrictEqual({ a: 1, b: 2 });
@@ -309,6 +309,32 @@ describe('Objects', () => {
     const array = Objects.flatten(obj, (obj) => obj.children);
     expect(array).toHaveLength(8);
     expect(array.reduce((counter, obj2) => counter + obj2.num, 0)).toEqual(128);
+  });
+
+  test('transform', () => {
+    const obj = { a: 1, b: 'test', c: true };
+    const transformed = Objects.transform(obj, (key: string, value: any) => {
+      if (typeof value === 'number') {
+        return [key, value * 2];
+      }
+      if (typeof value === 'string') {
+        return [key, value.toUpperCase()];
+      }
+      return undefined;
+    });
+    expect(transformed).toEqual({ a: 2, b: 'TEST' });
+  });
+
+  test('difference', () => {
+    const obj1 = { name: 'Gemini', specs: { version: 3, speed: 'fast' }, tags: [1, 2] };
+    const obj2 = { name: 'Gemini', specs: { version: 3, speed: 'ultra' }, tags: [1, 3] };
+
+    const diff = Objects.difference(obj2, obj1);
+
+    expect(diff).toEqual({
+      specs: { speed: 'ultra' },
+      tags: [1, 3],
+    });
   });
 
   describe('visit function', () => {

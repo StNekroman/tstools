@@ -1,4 +1,4 @@
-import { Types } from './Types';
+import { type Types } from './Types';
 
 export namespace Objects {
   export function isNotNullOrUndefined<T>(arg: T | null | undefined): arg is NonNullable<T> {
@@ -49,7 +49,7 @@ export namespace Objects {
   }
 
   export function forEach<T extends {}>(obj: T, callback: (key: keyof T, value: T[keyof T]) => void): void {
-    for (const key of Object.keys(obj) as (keyof T)[]) {
+    for (const key of Objects.keys(obj)) {
       callback(key, obj[key]);
     }
   }
@@ -109,8 +109,8 @@ export namespace Objects {
         return false;
       }
 
-      const keys1: string[] = Object.keys(obj1);
-      const keys2: string[] = Object.keys(obj2);
+      const keys1 = Objects.keys(obj1);
+      const keys2 = Objects.keys(obj2);
       if (keys1.length !== keys2.length) {
         return false;
       }
@@ -128,12 +128,12 @@ export namespace Objects {
         return obj1.source === obj2.source && obj1.flags === obj2.flags;
       }
 
-      const keys2set: Set<string> = new Set(keys2);
+      const keys2set = new Set(keys2);
       for (const key of keys1) {
         if (!Objects.equals(obj1[key as keyof T1], obj2[key as keyof T2])) {
           return false;
         }
-        keys2set.delete(key);
+        keys2set.delete(key as keyof T2);
       }
 
       return keys2set.size === 0;
@@ -198,7 +198,7 @@ export namespace Objects {
     src: SRC,
     options?: {
       canOverwrite?: <DST extends {}, SRC extends {}>(dst: DST, src: SRC, key: keyof SRC) => boolean;
-    }
+    },
   ): boolean {
     const canOverwrite = options?.canOverwrite ?? (() => true);
 
@@ -214,7 +214,7 @@ export namespace Objects {
             // no merge, just pick a copy
             dst[key as unknown as keyof typeof dst] = Objects.deepCopy(
               src[key as keyof SRC],
-              true
+              true,
             ) as unknown as (typeof dst)[keyof typeof dst];
           }
           changed ||= overwrite;
@@ -271,7 +271,7 @@ export namespace Objects {
     obj: OBJ,
     visitor: (obj: OBJ, level: number) => OBJ[] | void,
     seen: Set<OBJ> = new Set(),
-    level: number = 0
+    level: number = 0,
   ): void {
     if (seen.has(obj)) {
       // already seen this object, skip to avoid infinite loop
@@ -295,7 +295,7 @@ export namespace Objects {
    */
   export function flatten<OBJ extends {}>(
     obj: OBJ,
-    childrenExtractor: (obj: OBJ, level: number) => OBJ[] | void
+    childrenExtractor: (obj: OBJ, level: number) => OBJ[] | void,
   ): OBJ[] {
     const array: OBJ[] = [];
     visit(obj, (obj, level) => {
@@ -336,9 +336,43 @@ export namespace Objects {
 
   export function getKeyByValue<E extends Record<PropertyKey, unknown>, V extends E[keyof E]>(
     enumObj: E,
-    enumValue: V
+    enumValue: V,
   ): Types.KeyForValue<E, V> {
     const keys = Objects.keys(enumObj).filter((k) => enumObj[k] === enumValue) as [Types.KeyForValue<E, V>] | [];
     return keys.length > 0 ? keys[0]! : undefined!;
+  }
+
+  /**
+   * Maps keys and values of object to new keys and values by provided mapper function. Mapper may return undefined to skip mapping of some fields.
+   * @param obj source object to map
+   * @param mapper returns `undefined` to skip mapping of field, otherwise returns tuple of new key and new value. New key must be unique in result object, otherwise it will be overwritten by last mapped field with same key.
+   * @returns mapped object ref
+   */
+  export function transform<T extends {}, R = Record<PropertyKey, unknown>>(
+    obj: T,
+    mapper: (key: keyof T, value: T[keyof T]) => [key: keyof R, value: R[keyof R]] | undefined,
+  ): R {
+    const result = {} as R;
+    for (const key of Objects.keys(obj)) {
+      const mapped = mapper(key, obj[key]);
+      if (mapped) {
+        const [newKey, newValue] = mapped;
+        result[newKey] = newValue;
+      }
+    }
+    return result;
+  }
+
+  export function difference<T extends {}, B extends {}>(object: T, base: B): Partial<T> {
+    return transform(object, (key: keyof T, value: T[keyof T]) => {
+      const baseValue = base[key as string as keyof B];
+      if (!equals(value, baseValue)) {
+        if (isObject(value) && isObject(baseValue)) {
+          return [key, difference(value, baseValue) as T[keyof T]];
+        } else {
+          return [key, value];
+        }
+      }
+    });
   }
 }
