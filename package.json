@@ -1,10 +1,10 @@
 {
   "name": "@stnekroman/tstools",
-  "version": "0.7.2",
+  "version": "1.0.0",
   "description": "Set of handy tools for TypeScript development",
   "license": "MIT",
-  "main": "./dist/src/index.js",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": {
     "name": "StNekroman",
     "email": "StNekroman@gmail.com"
@@ -23,11 +23,16 @@
   ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "import": "./dist/src/index.js",
-      "default": "./dist/src/index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
@@ -35,6 +40,7 @@
     "test": "yarn build & jest",
     "debugTests": "jest -i",
     "lint": "eslint ./src",
+    "prepublishOnly": "npm run build",
     "npm-publish": "npm publish --access public",
     "npm-publish-github": "npm publish --access public --registry=https://npm.pkg.github.com"
   },

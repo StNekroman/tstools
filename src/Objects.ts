@@ -373,6 +373,7 @@ export namespace Objects {
           return [key, value];
         }
       }
+      return;
     });
   }
 }
