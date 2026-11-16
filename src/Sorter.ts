@@ -33,7 +33,7 @@ export class Sorter<T> {
       return (a: SortableType, b: SortableType) => {
         if (!Objects.isNotNullOrUndefined(a) && Objects.isNotNullOrUndefined(b)) {
           return 1;
-        } else if (Objects.isNotNullOrUndefined(a) && !Objects.isNotNullOrUndefined) {
+        } else if (Objects.isNotNullOrUndefined(a) && !Objects.isNotNullOrUndefined(b)) {
           return -1;
         } else {
           return 0;
@@ -56,7 +56,9 @@ export class Sorter<T> {
   }
 
   private constructor(
-    extractorOrFieldname: Functions.MapFunction<T, SortableType> | (keyof T & Types.KeysWithValsOfType<T, SortableType>)
+    extractorOrFieldname:
+      | Functions.MapFunction<T, SortableType>
+      | (keyof T & Types.KeysWithValsOfType<T, SortableType>),
   ) {
     if (Objects.isFunction(extractorOrFieldname)) {
       this.extractor = extractorOrFieldname;

@@ -376,4 +376,102 @@ export namespace Objects {
       return;
     });
   }
+
+  /**
+   * Java-`hashCode`-style structural hash for stable per-payload fingerprinting.
+   * Output is a non-negative 32-bit integer.
+   *
+   * Properties:
+   *  - Deterministic: same input → same output across runs and JS engines.
+   *  - Order-insensitive for plain objects: `{a:1,b:2}` and `{b:2,a:1}` hash
+   *    identically (sum of per-entry `key.hash ^ value.hash`, matching
+   *    Java's `Map.hashCode` definition).
+   *  - Order-sensitive for arrays: `[1,2]` ≠ `[2,1]`.
+   *  - Handles every JS scalar type — `undefined`, `null`, `NaN`, `Infinity`,
+   *    `BigInt`, `Symbol`, functions — by folding their string forms or known
+   *    constants. No throws.
+   *
+   * Not cycle-safe: a self-referencing structure recurses until stack overflow.
+   */
+  export function structHash(value: unknown): number {
+    return structHashWalk(value) >>> 0;
+  }
+
+  /**
+   * @returns the 8-character zero-padded lowercase hex form of `structHash(value)`.
+   */
+  export function structHashHex(value: unknown): string {
+    return structHash(value).toString(16).padStart(8, '0');
+  }
+
+  function structHashWalk(value: unknown): number {
+    if (value === null || value === undefined) {
+      return 0;
+    }
+
+    switch (typeof value) {
+      case 'boolean':
+        // Java's Boolean.hashCode constants — distinct, non-trivial, well-known.
+        return value ? 1231 : 1237;
+      case 'number':
+        return hashNumber(value);
+      case 'string':
+        return hashString(value);
+      case 'bigint':
+      case 'symbol':
+      case 'function':
+        // No native numeric encoding — fold their string form.
+        return hashString(value.toString());
+    }
+
+    if (Array.isArray(value)) {
+      // Array: order-sensitive accumulator (Java's List.hashCode).
+      let h = 1;
+      for (const e of value) {
+        h = (Math.imul(31, h) + structHashWalk(e)) | 0;
+      }
+      return h;
+    }
+
+    // Plain object: sum of entry hashes (order-independent).
+    let h = 0;
+    for (const k of Object.keys(value as object)) {
+      h = (h + (hashString(k) ^ structHashWalk((value as Record<string, unknown>)[k]))) | 0;
+    }
+    return h;
+  }
+
+  function hashString(s: string): number {
+    // Java's String.hashCode — `s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]`.
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    }
+    return h;
+  }
+
+  /**
+   * Scratch views over one 8-byte buffer, shared by every {@link hashNumber} call
+   * so that hashing a number allocates nothing. Sharing is safe because the write
+   * and the two reads are adjacent statements with no await, callback or property
+   * access between them, and each worker thread evaluates its own module instance.
+   */
+  const SCRATCH_F64 = new Float64Array(1);
+  const SCRATCH_U32 = new Uint32Array(SCRATCH_F64.buffer);
+
+  function hashNumber(n: number): number {
+    // Canonical encoding for non-finite values so they hash to constants.
+    if (Number.isNaN(n)) {
+      return 0x7fc00000;
+    }
+    if (n === Number.POSITIVE_INFINITY) {
+      return 0x7f800000;
+    }
+    if (n === Number.NEGATIVE_INFINITY) {
+      return 0xff800000 | 0;
+    }
+    // For finite numbers, fold the 64-bit IEEE 754 bits to 32 bits via XOR.
+    SCRATCH_F64[0] = n;
+    return (SCRATCH_U32[0] ^ SCRATCH_U32[1]) | 0;
+  }
 }

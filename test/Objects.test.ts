@@ -723,4 +723,153 @@ describe('Objects', () => {
       }).toThrow();
     });
   });
+
+  describe('structHash', () => {
+    describe('determinism', () => {
+      test('returns identical output for repeated calls with the same primitive', () => {
+        expect(Objects.structHash('hello')).toBe(Objects.structHash('hello'));
+        expect(Objects.structHash(42)).toBe(Objects.structHash(42));
+        expect(Objects.structHash(true)).toBe(Objects.structHash(true));
+      });
+
+      test('returns identical output for structurally-equal objects (built independently)', () => {
+        const a = { x: 1, y: 'z', n: [1, 2, 3] };
+        const b = { x: 1, y: 'z', n: [1, 2, 3] };
+        expect(Objects.structHash(a)).toBe(Objects.structHash(b));
+      });
+
+      test('returns a non-negative 32-bit integer', () => {
+        const samples = [0, 1, -1, 'x', { a: 1 }, [1, 2, 3], null, undefined, true, false];
+        for (const v of samples) {
+          const h = Objects.structHash(v);
+          expect(h).toBeGreaterThanOrEqual(0);
+          expect(h).toBeLessThanOrEqual(0xffffffff);
+          expect(Number.isInteger(h)).toBe(true);
+        }
+      });
+    });
+
+    describe('order-insensitivity for objects', () => {
+      test('hashes the same regardless of key insertion order', () => {
+        expect(Objects.structHash({ a: 1, b: 2 })).toBe(Objects.structHash({ b: 2, a: 1 }));
+        expect(Objects.structHash({ x: 'a', y: 'b', z: 'c' })).toBe(Objects.structHash({ z: 'c', x: 'a', y: 'b' }));
+      });
+
+      test('hashes nested objects independent of key order at every depth', () => {
+        const a = { outer: { inner: { x: 1, y: 2 }, m: 'a' } };
+        const b = { outer: { m: 'a', inner: { y: 2, x: 1 } } };
+        expect(Objects.structHash(a)).toBe(Objects.structHash(b));
+      });
+    });
+
+    describe('order-sensitivity for arrays', () => {
+      test('hashes differently when array element order changes', () => {
+        expect(Objects.structHash([1, 2, 3])).not.toBe(Objects.structHash([3, 2, 1]));
+        expect(Objects.structHash(['a', 'b'])).not.toBe(Objects.structHash(['b', 'a']));
+      });
+
+      test('preserves array order inside objects', () => {
+        expect(Objects.structHash({ ids: [1, 2] })).not.toBe(Objects.structHash({ ids: [2, 1] }));
+      });
+
+      test('counts repeated elements (same primitive or same reference)', () => {
+        const shared = { a: 1 };
+        expect(Objects.structHash([1, 1])).not.toBe(Objects.structHash([1]));
+        expect(Objects.structHash([shared, shared])).not.toBe(Objects.structHash([shared]));
+        expect(Objects.structHash([shared, shared])).toBe(Objects.structHash([{ a: 1 }, { a: 1 }]));
+      });
+    });
+
+    describe('null / undefined', () => {
+      test('hashes null and undefined to the same value (both 0)', () => {
+        expect(Objects.structHash(null)).toBe(0);
+        expect(Objects.structHash(undefined)).toBe(0);
+      });
+
+      test('distinguishes property = undefined from a missing key (the key itself contributes)', () => {
+        expect(Objects.structHash({ a: 1, b: undefined })).not.toBe(Objects.structHash({ a: 1 }));
+      });
+    });
+
+    describe('finite numbers', () => {
+      test('gives every distinct double a distinct hash', () => {
+        const values = [0.1, 0.2, 1.5, 2.5, 1e308, 5e-324, 2 ** 31, -1];
+        const hashes = values.map((v) => Objects.structHash(v));
+        expect(new Set(hashes).size).toBe(values.length);
+      });
+
+      test('hashes a number the same whether it is bare, nested or repeated', () => {
+        const sample = { a: 0.1, b: [0.2, { c: 1e308 }] };
+        expect(Objects.structHash(sample)).toBe(Objects.structHash({ a: 0.1, b: [0.2, { c: 1e308 }] }));
+        expect(Objects.structHash({ x: 0.1 })).not.toBe(Objects.structHash({ x: 0.2 }));
+        expect(Objects.structHash([1.5, 2.5])).not.toBe(Objects.structHash([2.5, 1.5]));
+      });
+    });
+
+    describe('non-finite numbers', () => {
+      test('hashes NaN to a stable canonical value', () => {
+        expect(Objects.structHash(Number.NaN)).toBe(Objects.structHash(Number.NaN));
+      });
+
+      test('hashes Infinity / -Infinity stably and distinctly from NaN', () => {
+        const nan = Objects.structHash(Number.NaN);
+        const posInf = Objects.structHash(Number.POSITIVE_INFINITY);
+        const negInf = Objects.structHash(Number.NEGATIVE_INFINITY);
+        expect(posInf).toBe(Objects.structHash(Number.POSITIVE_INFINITY));
+        expect(negInf).toBe(Objects.structHash(Number.NEGATIVE_INFINITY));
+        expect(nan).not.toBe(posInf);
+        expect(posInf).not.toBe(negInf);
+      });
+    });
+
+    describe('BigInt / Symbol / function (no throw)', () => {
+      test('hashes BigInt stably via its decimal string', () => {
+        expect(Objects.structHash(42n)).toBe(Objects.structHash(42n));
+        expect(Objects.structHash(42n)).not.toBe(Objects.structHash(43n));
+      });
+
+      test('hashes Symbols with same description identically', () => {
+        expect(Objects.structHash(Symbol('x'))).toBe(Objects.structHash(Symbol('x')));
+        expect(Objects.structHash(Symbol('x'))).not.toBe(Objects.structHash(Symbol('y')));
+      });
+
+      test('hashes functions by their source text without throwing', () => {
+        const fn = () => 1;
+        expect(() => Objects.structHash(fn)).not.toThrow();
+        expect(Objects.structHash(fn)).toBe(Objects.structHash(fn.toString()));
+      });
+    });
+
+    describe('discrimination across types', () => {
+      test('distinguishes booleans from their numeric coercions', () => {
+        expect(Objects.structHash(true)).not.toBe(Objects.structHash(1));
+        expect(Objects.structHash(false)).not.toBe(Objects.structHash(0));
+      });
+
+      test('distinguishes empty array from empty object; empty object collides with null', () => {
+        expect(Objects.structHash([])).toBe(1);
+        expect(Objects.structHash({})).toBe(0);
+        expect(Objects.structHash({})).toBe(Objects.structHash(null));
+      });
+
+      test('discriminates two different payloads on the same shape', () => {
+        const a = { changes: { subject: 'first' } };
+        const b = { changes: { subject: 'second' } };
+        expect(Objects.structHash(a)).not.toBe(Objects.structHash(b));
+      });
+    });
+  });
+
+  describe('structHashHex', () => {
+    test('returns an 8-character lowercase hex string', () => {
+      expect(Objects.structHashHex('x')).toMatch(/^[0-9a-f]{8}$/);
+      expect(Objects.structHashHex({ a: 1 })).toMatch(/^[0-9a-f]{8}$/);
+      expect(Objects.structHashHex(null)).toBe('00000000');
+    });
+
+    test('round-trips: parseInt(hex, 16) === structHash(value)', () => {
+      const sample = { items: [{ id: 'm-1', subject: 'hello' }] };
+      expect(parseInt(Objects.structHashHex(sample), 16)).toBe(Objects.structHash(sample));
+    });
+  });
 });

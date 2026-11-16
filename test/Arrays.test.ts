@@ -20,9 +20,28 @@ describe("Arrays", () => {
   });
 
   test("shuffle", () => {
-    const shuffled = Arrays.shuffle([1, 2, 3]);
-    expect(shuffled).toBeDefined();
-    expect(shuffled).not.toStrictEqual([1, 2, 3]);
+    const arr = [1, 2, 3];
+    const shuffled = Arrays.shuffle(arr);
+    expect(shuffled).toBe(arr); // shuffles in place
+    expect([...shuffled].sort()).toStrictEqual([1, 2, 3]);
+
+    expect(Arrays.shuffle([])).toStrictEqual([]);
+    expect(Arrays.shuffle([1])).toStrictEqual([1]);
+  });
+
+  test("shuffle is uniform", () => {
+    // 3 elements -> 6 permutations, each expected 1000 times out of 6000.
+    // std dev is ~29, so the [800, 1200] window is ~7 sigma: not flaky.
+    const counts = new Map<string, number>();
+    for (let i = 0; i < 6000; i++) {
+      const key = Arrays.shuffle([1, 2, 3]).join("");
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    expect([...counts.keys()].sort()).toStrictEqual(["123", "132", "213", "231", "312", "321"]);
+    for (const count of counts.values()) {
+      expect(count).toBeGreaterThan(800);
+      expect(count).toBeLessThan(1200);
+    }
   });
 
   test("filterUntil", () => {
